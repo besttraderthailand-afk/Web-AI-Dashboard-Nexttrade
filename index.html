@@ -179,9 +179,11 @@
           <p class="price" style="font-size:32px;">17.00 USDT</p>
           <p>รับเข้า Vault บน BSC (BEP20) · คำนวณคอมทันทีเป็นเครดิตในเว็บ</p>
           <table>
-            <tr><td>บริษัท</td><td>30%</td><td>5.10</td></tr>
-            <tr><td>การตลาด</td><td>70%</td><td>11.90</td></tr>
-            <tr><td>Unilevel 10×3%</td><td>ของงบการตลาด</td><td>3.570</td></tr>
+            <tr><td>บริษัท</td><td>30% ของยอด</td><td>5.10</td></tr>
+            <tr><td>Unilevel 10 ชั้น</td><td>21% ของยอด</td><td>3.57</td></tr>
+            <tr><td>Pool ตำแหน่ง</td><td>12% ของยอด</td><td>2.04</td></tr>
+            <tr><td>Leadership (จ่ายครั้งเดียว)</td><td>8% ของยอด</td><td>1.36</td></tr>
+            <tr><td>Tier 1–3</td><td>0–11% ตามจำนวนยูสเซอร์</td><td>เมื่อครบเงื่อนไข</td></tr>
           </table>
           <p class="muted">กดจ่ายในตัวอย่างนี้เป็นจำลอง — ยังไม่ยิงเชนจริง</p>
           <button class="btn" id="payMem">จำลองจ่าย 17 USDT</button>
@@ -191,6 +193,100 @@
           <h2>ไลเซนส์ EA ที่ต้องซื้อแยก</h2>
           <div id="licList">กำลังโหลดแคตตาล็อก...</div>
         </div>
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h2>Tier 1–3 ตามจำนวนยูสเซอร์</h2>
+          <p class="muted">นับรวม 3 ชั้น · 1% ต่อ 100 คน · สูงสุด 1,100 คน · จ่ายเมื่อครบเงื่อนไข แล้วแบ่ง 20:15:5</p>
+          <table>
+            <tr><th>ยูสเซอร์</th><th>ยอดแพ็ก 17$</th><th>% Tier</th><th>เงิน Tier รวม</th></tr>
+            <tr><td>99</td><td>1,683</td><td>0%</td><td>ยังไม่จ่าย</td></tr>
+            <tr><td>100</td><td>1,700</td><td>1%</td><td>17</td></tr>
+            <tr><td>300</td><td>5,100</td><td>3%</td><td>153</td></tr>
+            <tr><td>1,000</td><td>17,000</td><td>10%</td><td>1,700</td></tr>
+            <tr><td>1,100+</td><td>18,700</td><td>11% สูงสุด</td><td>2,057</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h2>Pool 5 ตำแหน่ง (หารคนที่ขึ้นรอบนั้น)</h2>
+          <p class="muted">สมมุติแพ็ก 17$ → Pool 2.04 ต่อบิล · น้ำหนักถังตามตำแหน่ง</p>
+          <table>
+            <tr><th>ตำแหน่ง</th><th>สัดส่วนถัง</th><th>ตัวอย่าง</th></tr>
+            <tr><td>Bronze</td><td>10%</td><td>ถัง ÷ คนที่เพิ่งขึ้น Bronze</td></tr>
+            <tr><td>Silver</td><td>15%</td><td>20 คนขึ้น Silver → คนละถัง/20</td></tr>
+            <tr><td>Gold</td><td>20%</td><td>ขึ้นใหม่เท่านั้น</td></tr>
+            <tr><td>Diamond</td><td>25%</td><td>ขึ้นใหม่เท่านั้น</td></tr>
+            <tr><td>Legend</td><td>30%</td><td>ขึ้นใหม่เท่านั้น</td></tr>
+          </table>
+          <p class="muted">Leadership 8% เป็นโบนัสครั้งเดียวเมื่อครบเงื่อนไขครั้งแรก ไม่จ่ายซ้ำ</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>ยอดสะสมรายเดือน</h2>
+        <p class="muted">ตัวอย่าง 3 เดือน · แพ็ก 17$ + สมมุติมีซื้อ Cap · Tier คิดจากจำนวนยูสเซอร์ปลายเดือน</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px">
+          <label>แพ็กเดือนนี้ <input id="mPkg" type="number" min="0" value="100" style="width:110px" /></label>
+          <label>ซื้อ Cap USDT <input id="mCap" type="number" min="0" value="100" style="width:110px" /></label>
+          <label>ยูสเซอร์ 3 ชั้น <input id="mUsers" type="number" min="0" value="100" style="width:110px" /></label>
+          <button class="ghost" id="mCalc">คำนวณเดือนนี้</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>เดือน</th>
+              <th>รับรวม</th>
+              <th>บริษัท 30%</th>
+              <th>Unilevel 21%</th>
+              <th>Pool 12%</th>
+              <th>Leadership 8%</th>
+              <th>Tier 1–3</th>
+              <th>สำรอง</th>
+            </tr>
+          </thead>
+          <tbody id="monthBody">
+            <tr>
+              <td>เดือน 1 · 80 แพ็ก · 80 คน</td>
+              <td>1,360</td>
+              <td>408.00</td>
+              <td>285.60</td>
+              <td>163.20</td>
+              <td>108.80</td>
+              <td>0 (ยังไม่ครบ 100)</td>
+              <td>394.40</td>
+            </tr>
+            <tr>
+              <td>เดือน 2 · 100 แพ็ก · 100 คน</td>
+              <td>1,700</td>
+              <td>510.00</td>
+              <td>357.00</td>
+              <td>204.00</td>
+              <td>136.00</td>
+              <td>17.00 (1%)</td>
+              <td>476.00</td>
+            </tr>
+            <tr>
+              <td>เดือน 3 · 300 แพ็ก · 300 คน</td>
+              <td>5,100</td>
+              <td>1,530.00</td>
+              <td>1,071.00</td>
+              <td>612.00</td>
+              <td>408.00</td>
+              <td>153.00 (3%)</td>
+              <td>1,326.00</td>
+            </tr>
+            <tr>
+              <td><b>สะสม 3 เดือน</b></td>
+              <td><b>8,160</b></td>
+              <td><b>2,448.00</b></td>
+              <td><b>1,713.60</b></td>
+              <td><b>979.20</b></td>
+              <td><b>652.80</b></td>
+              <td><b>170.00</b></td>
+              <td><b>2,196.40</b></td>
+            </tr>
+          </tbody>
+        </table>
+        <p id="mLive" class="muted"></p>
       </div>
     </section>
 
@@ -233,7 +329,8 @@ A  Active<br>
     </section>
 
     <section class="page" id="keys">
-      <div class="card" style="max-width:560px;">
+      <div class="grid cols-2">
+      <div class="card">
         <h2>API Key ของบัญชีนี้</h2>
         <p class="muted">เก็บเข้ารหัสฝั่งเซิร์ฟเวอร์ — ตัวอย่างนี้ไม่ส่งออกเน็ต</p>
         <label>OpenAI</label><input placeholder="sk-..." />
@@ -245,6 +342,25 @@ A  Active<br>
         <label>Grok</label><input placeholder="xai-..." />
         <div style="height:12px"></div>
         <button class="btn">บันทึกตัวอย่าง</button>
+      </div>
+      <div class="card">
+        <h2>Soft Cap / Hard Cap</h2>
+        <p>วันนี้ <b>80/80</b> ข้อความ — Soft Cap เต็ม</p>
+        <p>เดือนนี้ <b>150,000/150,000</b> โทเค็น — Hard Cap เต็ม แชตถูกบล็อก</p>
+        <div class="warn">หมดโควตาแล้ว ซื้อเพิ่มได้ขั้นต่ำ 5 USDT แผนแบ่งเงินเหมือนแพ็กเกจสมาชิก</div>
+        <div style="display:flex;gap:8px;margin:10px 0;">
+          <input id="capAmt" type="number" min="5" step="1" value="5" />
+          <button class="btn" id="buyCap">ซื้อ Cap</button>
+        </div>
+        <table>
+          <tr><td>5 USDT</td><td>บริษัท 30%</td><td>1.50</td></tr>
+          <tr><td></td><td>Unilevel 21%</td><td>1.05</td></tr>
+          <tr><td></td><td>Pool 12%</td><td>0.60</td></tr>
+          <tr><td></td><td>Leadership 8% ครั้งเดียว</td><td>0.40</td></tr>
+          <tr><td></td><td>Tier 1–3</td><td>ตามจำนวนยูสเซอร์ 0–11%</td></tr>
+        </table>
+        <p id="capMsg" class="ok"></p>
+      </div>
       </div>
     </section>
   </main>
@@ -279,6 +395,41 @@ document.getElementById("saveIb").onclick = () => {
   const u = document.getElementById("ibUrl").value.trim();
   if (!u) return;
   document.getElementById("ibList").insertAdjacentHTML("beforeend", `<li>${u}</li>`);
+};
+function money2(n) { return Number(n).toFixed(2); }
+document.getElementById("mCalc").onclick = () => {
+  const pkg = Number(document.getElementById("mPkg").value) || 0;
+  const cap = Number(document.getElementById("mCap").value) || 0;
+  const users = Number(document.getElementById("mUsers").value) || 0;
+  const gross = pkg * 17 + cap;
+  const company = gross * 0.3;
+  const uni = gross * 0.21;
+  const pool = gross * 0.12;
+  const lead = gross * 0.08;
+  const steps = users < 100 ? 0 : Math.min(11, Math.floor(users / 100));
+  const tier = gross * (steps / 100);
+  const reserve = gross - company - uni - pool - lead - tier;
+  document.getElementById("mLive").textContent =
+    "เดือนนี้รับ " + money2(gross) +
+    " · บริษัท " + money2(company) +
+    " · Unilevel " + money2(uni) +
+    " · Pool " + money2(pool) +
+    " · Leadership " + money2(lead) +
+    " · Tier " + money2(tier) + (steps ? " (" + steps + "%)" : " (ยังไม่ครบเงื่อนไข)") +
+    " · สำรอง " + money2(reserve);
+};
+document.getElementById("buyCap").onclick = () => {
+  const n = Number(document.getElementById("capAmt").value);
+  const msg = document.getElementById("capMsg");
+  if (!Number.isFinite(n) || n < 5) {
+    msg.className = "bad";
+    msg.textContent = "ขั้นต่ำ 5 USDT";
+    return;
+  }
+  const company = (n * 0.3).toFixed(2);
+  const market = (n * 0.7).toFixed(2);
+  msg.className = "ok";
+  msg.textContent = "จำลองซื้อ Cap " + n + " USDT · บริษัท " + company + " · การตลาด " + market + " · ปลด Soft/Hard Cap ตามสัดส่วน";
 };
 
 fetch("/catalog/eas").then((r) => r.json()).then((j) => {
