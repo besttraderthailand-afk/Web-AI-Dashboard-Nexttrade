@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NexxTrade — เว็บตัวอย่างทั้งระบบ</title>
+  <style>
+    :root {
+      --bg:#090d16; --panel:#101827; --panel2:#162033; --line:#2a364a;
+      --txt:#e8eef7; --dim:#8b97ab; --gold:#d4b03a; --gold2:#f0d27a;
+      --ok:#3dd68c; --bad:#f07178; --blue:#6ea8ff; --chip:#1c2738;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font:14px/1.5 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--txt); }
+    a { color:var(--gold2); text-decoration:none; }
+    header.top {
+      position:sticky; top:0; z-index:20; display:flex; gap:16px; align-items:center;
+      padding:10px 18px; background:#0c121eec; border-bottom:1px solid var(--line); backdrop-filter:blur(8px);
+    }
+    .brand { font-weight:700; letter-spacing:.06em; color:var(--gold); }
+    .brand small { display:block; color:var(--dim); font-weight:400; letter-spacing:0; font-size:11px; }
+    nav.top a, nav.top button {
+      background:transparent; border:0; color:var(--dim); padding:8px 10px; border-radius:8px; cursor:pointer; font:inherit;
+    }
+    nav.top a.on, nav.top button.on { color:var(--txt); background:var(--chip); }
+    .spacer { flex:1; }
+    .pill { border:1px solid var(--line); border-radius:999px; padding:6px 10px; color:var(--dim); font-size:12px; }
+    main { max-width:1240px; margin:0 auto; padding:18px; }
+    .grid { display:grid; gap:14px; }
+    .cols-2 { grid-template-columns:1.6fr .9fr; }
+    .cols-3 { grid-template-columns:repeat(3,1fr); }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; }
+    h1 { font-size:28px; margin:0 0 8px; }
+    h2 { font-size:16px; margin:0 0 10px; }
+    h3 { font-size:13px; color:var(--dim); margin:0 0 8px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    p { color:#c5d0e0; }
+    .muted { color:var(--dim); }
+    button.btn, .btn {
+      display:inline-block; background:var(--gold); color:#111; border:0; border-radius:10px;
+      padding:10px 14px; font-weight:700; cursor:pointer; font:inherit;
+    }
+    button.ghost { background:var(--chip); color:var(--txt); border:1px solid var(--line); }
+    input, select, textarea {
+      width:100%; background:#0b1220; color:var(--txt); border:1px solid var(--line);
+      border-radius:10px; padding:9px 10px; font:inherit;
+    }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); }
+    .ok { color:var(--ok); } .bad { color:var(--bad); }
+    .page { display:none; }
+    .page.on { display:block; }
+    .hero { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:center; margin-bottom:18px; }
+    .price { font-size:42px; color:var(--gold2); font-weight:700; }
+    .chart {
+      height:280px; background:linear-gradient(#101827,#0b1220); border-radius:12px; position:relative; overflow:hidden;
+      border:1px solid var(--line);
+    }
+    .chart svg { width:100%; height:100%; display:block; }
+    .news-item { padding:10px 0; border-bottom:1px solid var(--line); }
+    .tag { font-size:11px; padding:2px 7px; border-radius:999px; background:#3a2410; color:#f0d27a; }
+    .tag.red { background:#3a1518; color:#ffb4b8; }
+    .chat { display:flex; flex-direction:column; height:420px; }
+    .chat .log { flex:1; overflow:auto; padding-right:6px; }
+    .bubble { background:var(--panel2); border-radius:12px; padding:8px 10px; margin:8px 0; max-width:95%; }
+    .bubble.me { background:#1d3358; margin-left:auto; }
+    .tree { font-family:ui-monospace, Consolas, monospace; font-size:13px; line-height:1.7; }
+    .warn { background:#2a1d10; border:1px solid #5c4318; color:#f0d27a; border-radius:10px; padding:10px; font-size:13px; }
+    footer { text-align:center; color:var(--dim); padding:24px; font-size:12px; }
+    @media (max-width:900px) {
+      .hero, .cols-2, .cols-3 { grid-template-columns:1fr; }
+      nav.top { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">NEXXTRADE<small>เว็บตัวอย่างทั้งระบบ · ยังไม่ใช่โปรดักชัน</small></div>
+    <nav class="top">
+      <button class="on" data-page="home">หน้าแรก</button>
+      <button data-page="ai">AI + กราฟ</button>
+      <button data-page="news">ข่าว</button>
+      <button data-page="pay">ชำระเงิน</button>
+      <button data-page="aff">Affiliate / IB</button>
+      <button data-page="tree">ผังสมาชิก</button>
+      <button data-page="keys">API Keys</button>
+    </nav>
+    <div class="spacer"></div>
+    <span class="pill" id="who">ยังไม่เชื่อมวอลเล็ต</span>
+    <button class="ghost" id="connect">เชื่อมวอลเล็ต</button>
+    <a class="btn" href="console.html">Admin</a>
+  </header>
+
+  <main>
+    <section class="page on" id="home">
+      <div class="hero">
+        <div>
+          <h1>แพลตฟอร์มสัญญาณ + ข่าว + AI + สมาชิกภาพ</h1>
+          <p>ตัวอย่างหน้าตาทั้งระบบตามสถาปัตยกรรม v1.1 — ลูกค้าอยู่คนละโลกกับแอดมิน วอลเล็ตใช้จ่ายเงิน Google + API key ใช้คุย AI</p>
+          <p class="price">590 บาท <span style="font-size:18px;color:var(--dim)">≈ 17 USDT</span></p>
+          <p class="muted">บริษัท 30% · การตลาด 70% · Unilevel 10×3% roll-up ชั่วคราว ผังไม่ขยับ</p>
+          <button class="btn" data-go="pay">สมัครแพ็กเกจ</button>
+          <button class="ghost" data-go="ai">ดูแดชบอร์ด AI</button>
+        </div>
+        <div class="card">
+          <h3>ซับโดเมนที่ออกแบบไว้</h3>
+          <table>
+            <tr><td>ai.</td><td>กราฟ + แชตหลายโมเดล</td></tr>
+            <tr><td>news.</td><td>ปฏิทินเศรษฐกิจ + ฟีด</td></tr>
+            <tr><td>pay.</td><td>แพ็กเกจ / ไลเซนส์ EA / Claim</td></tr>
+            <tr><td>go.</td><td>ลิงก์แนะนำในระบบ</td></tr>
+            <tr><td>admin.</td><td>ล็อกอินอีเมล RBAC</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="grid cols-3">
+        <div class="card"><h2>สัญญาณ Multi-EA</h2><p>Magic EEESSSSS · registry 001–008 · บางตัวต้องซื้อไลเซนส์</p></div>
+        <div class="card"><h2>AI ของลูกค้า</h2><p>ใส่คีย์ OpenAI / Claude / Gemini / Grok เอง มี Soft/Hard Cap กันบอท</p></div>
+        <div class="card"><h2>Web3 Claim</h2><p>รับ 17 USDT เข้า Vault · เครดิตในเว็บ · ถอนเองเมื่อครบ 10 USDT</p></div>
+      </div>
+    </section>
+
+    <section class="page" id="ai">
+      <div class="grid cols-2">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2>XAUUSD · M15</h2>
+            <span class="ok">2,384.70 +0.42%</span>
+          </div>
+          <div class="chart">
+            <svg viewBox="0 0 640 280" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#d4b03a" stroke-width="2"
+                points="10,180 50,160 90,170 130,120 170,140 210,110 250,125 290,90 330,100 370,80 410,95 450,70 490,88 530,60 570,75 630,50" />
+              <polyline fill="none" stroke="#6ea8ff" stroke-width="1" opacity=".6"
+                points="10,200 80,190 160,195 240,170 320,165 400,150 480,155 560,140 630,130" />
+            </svg>
+          </div>
+          <p class="muted">ตัวอย่างกราฟ — โปรดักชันจะฝัง TradingView widget</p>
+        </div>
+        <div class="card chat">
+          <h2>AI Chat · โมเดลของบัญชีนี้</h2>
+          <select id="model">
+            <option>Grok</option><option>GPT-4.1</option><option>Claude</option><option>Gemini</option>
+          </select>
+          <div class="log" id="log">
+            <div class="bubble">บริบทที่ส่งให้อัตโนมัติ: XAUUSD M15 · ข่าว NFP สีแดงใน 2 ชม. · สัญญาณ EA 001 HOLD</div>
+            <div class="bubble me">สรุปโซนเข้าวันนี้ให้หน่อย</div>
+            <div class="bubble">ตัวอย่างคำตอบ: ราคาอยู่เหนือ VWAP ช่วงลอนดอน ข่าวความผันผวนสูง — ยังไม่เข้าตามกติกา News filter ของ EA 006</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input id="q" placeholder="ถามเรื่องกราฟหรือข่าว..." />
+            <button class="btn" id="ask">ส่ง</button>
+          </div>
+          <p class="muted">Cap วันนี้ 12/80 ข้อความ · Soft Cap ยังไม่ชน</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="news">
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>ปฏิทินเศรษฐกิจ</h2>
+          <div class="news-item"><span class="tag red">สูง</span> 14:30 USD Non-Farm Payrolls</div>
+          <div class="news-item"><span class="tag">กลาง</span> 15:45 EUR ECB Speak</div>
+          <div class="news-item"><span class="tag">ต่ำ</span> 21:00 USD Consumer Credit</div>
+        </div>
+        <div class="card">
+          <h2>ฟีดข่าว</h2>
+          <div class="news-item">ทองปรับขึ้นหลังดอลลาร์อ่อน — แหล่งตัวอย่าง</div>
+          <div class="news-item">น้ำมันรอตัวเลขสต็อกคืนนี้</div>
+          <div class="news-item">โบรกเกอร์ประกาศตารางสวอปวันหยุด</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="pay">
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>แพ็กเกจสมาชิก</h2>
+          <p class="price" style="font-size:32px;">17.00 USDT</p>
+          <p>รับเข้า Vault บน BSC (BEP20) · คำนวณคอมทันทีเป็นเครดิตในเว็บ</p>
+          <table>
+            <tr><td>บริษัท</td><td>30%</td><td>5.10</td></tr>
+            <tr><td>การตลาด</td><td>70%</td><td>11.90</td></tr>
+            <tr><td>Unilevel 10×3%</td><td>ของงบการตลาด</td><td>3.570</td></tr>
+          </table>
+          <p class="muted">กดจ่ายในตัวอย่างนี้เป็นจำลอง — ยังไม่ยิงเชนจริง</p>
+          <button class="btn" id="payMem">จำลองจ่าย 17 USDT</button>
+          <p id="payMsg" class="ok"></p>
+        </div>
+        <div class="card">
+          <h2>ไลเซนส์ EA ที่ต้องซื้อแยก</h2>
+          <div id="licList">กำลังโหลดแคตตาล็อก...</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="aff">
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>ลิงก์แนะนำแพลตฟอร์ม (ระบบออกให้)</h2>
+          <input readonly value="https://go.nexxtrade.example/r/LEADER01" />
+          <p class="muted">ติดสปอนเซอร์ตอนคนใหม่จ่ายแพ็กเกจ</p>
+        </div>
+        <div class="card">
+          <h2>ลิงก์ IB โบรกเกอร์ (ของใครของมัน)</h2>
+          <p class="muted">ระบบไม่สมัคร IB ให้ — วาง URL เอง</p>
+          <input id="ibUrl" placeholder="https://exness.com/a/ของคุณ" />
+          <div style="height:8px"></div>
+          <button class="ghost" id="saveIb">บันทึกตัวอย่าง</button>
+          <ul id="ibList"><li>exness.com — https://exness.com/a/abc</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="tree">
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>ผังถาวร</h2>
+          <div class="tree">
+A  Active<br>
+└─ B  ขาดอายุ 1–14 · ต่ออายุวันที่ 15<br>
+&nbsp;&nbsp;&nbsp;└─ C  Active · มีลูกข่ายใหม่
+          </div>
+          <div class="warn">Roll-up มีผลแค่เงิน Unilevel ของบิลนั้น ตำแหน่ง A-B-C ไม่ขยับ บิลช่วง B ขาดอายุไม่เรียกคืน</div>
+        </div>
+        <div class="card">
+          <h2>เครดิต / Claim</h2>
+          <p>ยอดในบัญชีตัวอย่าง: <b>12.50 USDT</b></p>
+          <p class="muted">ขั้นต่ำถอน 10 USDT · ผู้ใช้จ่ายแก๊สเอง</p>
+          <button class="btn">จำลอง Claim</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="keys">
+      <div class="card" style="max-width:560px;">
+        <h2>API Key ของบัญชีนี้</h2>
+        <p class="muted">เก็บเข้ารหัสฝั่งเซิร์ฟเวอร์ — ตัวอย่างนี้ไม่ส่งออกเน็ต</p>
+        <label>OpenAI</label><input placeholder="sk-..." />
+        <div style="height:8px"></div>
+        <label>Claude</label><input placeholder="sk-ant-..." />
+        <div style="height:8px"></div>
+        <label>Gemini</label><input placeholder="AIza..." />
+        <div style="height:8px"></div>
+        <label>Grok</label><input placeholder="xai-..." />
+        <div style="height:12px"></div>
+        <button class="btn">บันทึกตัวอย่าง</button>
+      </div>
+    </section>
+  </main>
+  <footer>ตัวอย่างเพื่อตรวจเลย์เอาต์และกติกา · Admin อยู่ที่ console.html</footer>
+<script>
+const pages = document.querySelectorAll(".page");
+const navBtns = document.querySelectorAll("nav.top button");
+function go(name) {
+  pages.forEach((p) => p.classList.toggle("on", p.id === name));
+  navBtns.forEach((b) => b.classList.toggle("on", b.dataset.page === name));
+  history.replaceState(null, "", "#" + name);
+}
+navBtns.forEach((b) => b.onclick = () => go(b.dataset.page));
+document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => go(b.dataset.go));
+if (location.hash) go(location.hash.slice(1));
+
+document.getElementById("connect").onclick = () => {
+  document.getElementById("who").textContent = "0xABC…EF12 · SIWE จำลอง";
+};
+document.getElementById("ask").onclick = () => {
+  const q = document.getElementById("q").value.trim();
+  if (!q) return;
+  const log = document.getElementById("log");
+  log.insertAdjacentHTML("beforeend", `<div class="bubble me">${q}</div><div class="bubble">ตัวอย่าง: ระบบจะส่งกราฟ+ข่าว+สัญญาณเข้าโมเดล ${document.getElementById("model").value} ด้วยคีย์ของคุณ</div>`);
+  document.getElementById("q").value = "";
+  log.scrollTop = log.scrollHeight;
+};
+document.getElementById("payMem").onclick = () => {
+  document.getElementById("payMsg").textContent = "จำลองสำเร็จ — สถานะ Active · เดิน Unilevel 3.570 USDT ตามกติกา roll-up";
+};
+document.getElementById("saveIb").onclick = () => {
+  const u = document.getElementById("ibUrl").value.trim();
+  if (!u) return;
+  document.getElementById("ibList").insertAdjacentHTML("beforeend", `<li>${u}</li>`);
+};
+
+fetch("/catalog/eas").then((r) => r.json()).then((j) => {
+  const eas = (j.data && j.data.eas) || [];
+  const box = document.getElementById("licList");
+  box.innerHTML = eas.map((e) => `<div class="news-item"><b>${e.code}</b> ${e.name}
+    ${e.license_required
+      ? `<span class="tag">ซื้อ ${e.license_price_usdt} USDT</span> → ${e.checkout_path}`
+      : `<span class="ok">รวมในแพ็กเกจ</span>`}
+  </div>`).join("");
+}).catch(() => {
+  document.getElementById("licList").textContent = "เปิดเซิร์ฟเวอร์เพื่อโหลดแคตตาล็อกจริง";
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NexxTrade Admin</title>
+  <style>
+    :root { --bg:#0c1220; --card:#151c2c; --line:#2a3548; --txt:#e8edf5; --dim:#8b97ab; --gold:#c9a227; --ok:#3dd68c; --bad:#f07178; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.45 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--txt); }
+    header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--line); }
+    header b { color:var(--gold); letter-spacing:.04em; }
+    button, input, select { font:inherit; }
+    button { background:#1e2a40; color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer; }
+    button.primary { background:var(--gold); color:#111; border:0; font-weight:600; }
+    button.danger { background:#3a1d24; color:#ffb4b8; }
+    input, select { background:#0f1624; color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:8px 10px; }
+    main { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 54px); }
+    nav { border-right:1px solid var(--line); padding:12px; }
+    nav button { display:block; width:100%; text-align:left; margin:4px 0; }
+    nav button.on { border-color:var(--gold); color:var(--gold); }
+    section { padding:18px 20px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); }
+    .ok { color:var(--ok); } .bad { color:var(--bad); } .dim { color:var(--dim); }
+    #login { max-width:360px; margin:12vh auto; }
+    pre { white-space:pre-wrap; word-break:break-word; font-size:12px; color:#c5d0e0; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <div id="login" class="card">
+    <h2>Admin console</h2>
+    <p class="dim">ล็อกอินอีเมล — คนละระบบกับวอลเล็ตลูกค้า</p>
+    <div class="row"><input id="email" style="flex:1" value="owner@nexxtrade.local" /></div>
+    <div class="row"><input id="password" type="password" style="flex:1" placeholder="รหัสผ่าน" value="changeme" /></div>
+    <label class="dim"><input id="stepup" type="checkbox" /> step-up 2FA ทันที (งานกระเป๋า)</label>
+    <div class="row"><button class="primary" id="btnLogin">เข้าสู่ระบบ</button></div>
+    <p id="loginErr" class="bad"></p>
+  </div>
+
+  <div id="app" class="hidden">
+    <header>
+      <div><b>NEXXTRADE</b> <span class="dim">admin</span></div>
+      <div>
+        <span id="who" class="dim"></span>
+        <button id="btnStep">Step-up 2FA</button>
+        <button id="btnOut">ออก</button>
+      </div>
+    </header>
+    <main>
+      <nav>
+        <button data-tab="eas" class="on">EA Registry</button>
+        <button data-tab="members">สมาชิก</button>
+        <button data-tab="pay">เงิน / Claim</button>
+        <button data-tab="ai">AI Cap</button>
+        <button data-tab="audit">Audit</button>
+      </nav>
+      <section>
+        <div id="tab-eas"></div>
+        <div id="tab-members" class="hidden"></div>
+        <div id="tab-pay" class="hidden"></div>
+        <div id="tab-ai" class="hidden"></div>
+        <div id="tab-audit" class="hidden"></div>
+        <pre id="out"></pre>
+      </section>
+    </main>
+  </div>
+<script>
+const $ = (id) => document.getElementById(id);
+let token = sessionStorage.getItem("admin_token") || "";
+let me = null;
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: {
+      "content-type": "application/json",
+      ...(token ? { authorization: "Bearer " + token } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const json = await res.json().catch(() => ({}));
+  $("out").textContent = JSON.stringify(json, null, 2);
+  if (!res.ok) throw Object.assign(new Error(json.message || res.statusText), json);
+  return json;
+}
+
+function showApp() {
+  $("login").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("who").textContent = me ? me.email + " · " + (me.roles || []).join(",") : "";
+  loadTab("eas");
+}
+
+$("btnLogin").onclick = async () => {
+  $("loginErr").textContent = "";
+  try {
+    const r = await api("POST", "/auth/login", {
+      email: $("email").value,
+      password: $("password").value,
+      stepUp: $("stepup").checked,
+    });
+    token = r.token;
+    me = r.admin;
+    sessionStorage.setItem("admin_token", token);
+    sessionStorage.setItem("admin_me", JSON.stringify(me));
+    showApp();
+  } catch (e) {
+    $("loginErr").textContent = e.message || "login failed";
+  }
+};
+
+$("btnOut").onclick = () => {
+  token = ""; me = null;
+  sessionStorage.clear();
+  location.reload();
+};
+$("btnStep").onclick = () => api("POST", "/auth/step-up", {}).catch((e) => alert(e.message));
+
+document.querySelectorAll("nav button").forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll("nav button").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    loadTab(b.dataset.tab);
+  };
+});
+
+async function loadTab(name) {
+  ["eas","members","pay","ai","audit"].forEach((t) => {
+    const el = $("tab-" + t);
+    el.classList.toggle("hidden", t !== name);
+  });
+  if (name === "eas") {
+    const r = await api("GET", "/ea/registry");
+    const rows = (r.data.eas || []).map((e) => `<tr>
+      <td>${e.code}</td><td>${e.name}</td>
+      <td class="${e.enabled ? "ok":"bad"}">${e.enabled ? "on":"off"}</td>
+      <td>${e.license_required ? ("จ่าย " + e.license_price_usdt + " USDT") : "ในแพ็กเกจ"}</td>
+      <td><button data-code="${e.code}" data-on="${e.enabled}" class="tog">สลับ</button></td>
+    </tr>`).join("");
+    $("tab-eas").innerHTML = `<div class="card"><h3>EA จาก ea_registry.json</h3>
+      <table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>สถานะ</th><th>ไลเซนส์</th><th></th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+    $("tab-eas").querySelectorAll(".tog").forEach((btn) => {
+      btn.onclick = async () => {
+        await api("PUT", "/ea/registry", { code: btn.dataset.code, enabled: btn.dataset.on !== "true" });
+        loadTab("eas");
+      };
+    });
+  }
+  if (name === "members") {
+    const a = await api("GET", "/members/mem_1001");
+    const b = await api("GET", "/members/mem_1001/tree");
+    $("tab-members").innerHTML = `<div class="card"><h3>สมาชิกตัวอย่าง</h3>
+      <p>วอลเล็ต: ${a.data.member.wallet} ${a.rbac.masked ? "(mask)" : ""}</p>
+      <pre>${JSON.stringify(b.data, null, 2)}</pre></div>`;
+  }
+  if (name === "pay") {
+    const l = await api("GET", "/pay/ledger");
+    $("tab-pay").innerHTML = `<div class="card"><h3>เครดิตภายใน</h3>
+      <pre>${JSON.stringify(l.data, null, 2)}</pre>
+      <div class="row">
+        <input id="adjId" value="mem_1002" />
+        <input id="adjAmt" value="10" />
+        <button id="adjBtn">ปรับเครดิต</button>
+      </div></div>`;
+    $("adjBtn").onclick = () => api("POST", "/pay/credit/adjust", {
+      memberId: $("adjId").value, amountUsdt: Number($("adjAmt").value),
+    }).catch((e) => alert(e.message));
+  }
+  if (name === "ai") {
+    const u = await api("GET", "/ai/usage");
+    $("tab-ai").innerHTML = `<div class="card"><h3>Soft / Hard Cap</h3>
+      <pre>${JSON.stringify(u.data, null, 2)}</pre>
+      <button class="danger" id="kill">Kill switch โมเดลบริษัท</button></div>`;
+    $("kill").onclick = () => api("POST", "/ai/kill-switch", { enabled: true });
+  }
+  if (name === "audit") {
+    const a = await api("GET", "/admin/audit");
+    $("tab-audit").innerHTML = `<div class="card"><h3>Audit ล่าสุด</h3>
+      <pre>${JSON.stringify((a.data.items || []).slice(-15), null, 2)}</pre></div>`;
+  }
+}
+
+if (token) {
+  try { me = JSON.parse(sessionStorage.getItem("admin_me") || "null"); showApp(); }
+  catch { sessionStorage.clear(); }
+}
+</script>
+</body>
+</html>
