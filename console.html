@@ -135,21 +135,67 @@ async function loadTab(name) {
   });
   if (name === "eas") {
     const r = await api("GET", "/ea/registry");
-    const rows = (r.data.eas || []).map((e) => `<tr>
-      <td>${e.code}</td><td>${e.name}</td>
+    $("tab-eas").innerHTML = `<div class="card"><h3>EA Registry — กดปุ่มเพิ่ม/ลบ ไม่ต้องแก้โค้ด</h3>
+      <p class="dim">บันทึกลง ea_registry.json แล้ว generate EaRegistry.generated.mqh ให้ MasterDashboard อัตโนมัติ</p>
+      <table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>ไฟล์</th><th>สถานะ</th><th>ไลเซนส์</th><th></th></tr></thead>
+      <tbody>${(r.data.eas || []).map((e) => `<tr>
+      <td>${e.code}</td><td>${e.name}</td><td class="dim">${e.file || ""}</td>
       <td class="${e.enabled ? "ok":"bad"}">${e.enabled ? "on":"off"}</td>
       <td>${e.license_required ? ("จ่าย " + e.license_price_usdt + " USDT") : "ในแพ็กเกจ"}</td>
-      <td><button data-code="${e.code}" data-on="${e.enabled}" class="tog">สลับ</button></td>
-    </tr>`).join("");
-    $("tab-eas").innerHTML = `<div class="card"><h3>EA จาก ea_registry.json</h3>
-      <table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>สถานะ</th><th>ไลเซนส์</th><th></th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`;
+      <td>
+        <button data-code="${e.code}" data-on="${e.enabled}" class="tog">${e.enabled ? "ปิด":"เปิด"}</button>
+        <button data-code="${e.code}" class="danger rem">ลบ</button>
+      </td>
+    </tr>`).join("")}</tbody></table></div>
+      <div class="card">
+        <h3>เพิ่ม EA ใหม่</h3>
+        <div class="row">
+          <input id="newId" placeholder="ea_id เช่น 11" style="width:90px" />
+          <input id="newCode" placeholder="code เช่น 011" style="width:90px" />
+          <input id="newName" placeholder="ชื่อ EA" style="flex:1" />
+        </div>
+        <div class="row">
+          <input id="newFile" placeholder="ไฟล์ .mq5" style="flex:1" />
+          <input id="newCat" placeholder="หมวด" style="width:140px" />
+          <input id="newVer" placeholder="version" style="width:90px" />
+        </div>
+        <div class="row">
+          <label class="dim"><input id="newLic" type="checkbox" /> ต้องไลเซนส์</label>
+          <input id="newPrice" placeholder="ราคา USDT" style="width:100px" value="0" />
+          <button class="primary" id="btnAddEa">เพิ่ม EA</button>
+        </div>
+      </div>`;
     $("tab-eas").querySelectorAll(".tog").forEach((btn) => {
       btn.onclick = async () => {
         await api("PUT", "/ea/registry", { code: btn.dataset.code, enabled: btn.dataset.on !== "true" });
         loadTab("eas");
       };
     });
+    $("tab-eas").querySelectorAll(".rem").forEach((btn) => {
+      btn.onclick = async () => {
+        if (!confirm("ลบ " + btn.dataset.code + " ออกจาก registry?")) return;
+        await api("PUT", "/ea/registry", { remove: true, code: btn.dataset.code });
+        loadTab("eas");
+      };
+    });
+    $("btnAddEa").onclick = async () => {
+      const ea_id = Number($("newId").value);
+      const code = $("newCode").value.trim();
+      const name = $("newName").value.trim();
+      const file = $("newFile").value.trim();
+      if (!ea_id || !code || !name || !file) { alert("กรอก ea_id, code, ชื่อ, ไฟล์"); return; }
+      await api("PUT", "/ea/registry", {
+        ea: {
+          ea_id, code, name, file,
+          category: $("newCat").value.trim() || "custom",
+          version: $("newVer").value.trim() || "1.0",
+          license_required: $("newLic").checked,
+          license_price_usdt: Number($("newPrice").value || 0),
+          enabled: true,
+        }
+      });
+      loadTab("eas");
+    };
   }
   if (name === "members") {
     const a = await api("GET", "/members/mem_1001");
