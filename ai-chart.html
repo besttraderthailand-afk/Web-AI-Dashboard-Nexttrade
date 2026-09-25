@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NexxTrade — สลับชาร์ต</title>
+<style>
+:root { --bg:#090d16; --panel:#101827; --line:#2a364a; --txt:#e8eef7; --dim:#8b97ab; --gold:#d4b03a; --ok:#3dd68c; --bad:#f07178; --chip:#1c2738; }
+body { margin:0; font:14px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--txt); }
+.wrap { max-width:920px; margin:0 auto; padding:18px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; }
+.asset-bar, .tf-bar { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+.asset-bar button, .tf-bar button { background:var(--chip); color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:5px 10px; cursor:pointer; font:12px inherit; }
+.asset-bar button.on { color:#111; background:var(--gold); border-color:var(--gold); }
+.tf-bar button.on { color:var(--txt); border-color:var(--gold); }
+.row { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+.chart { height:280px; border:1px solid var(--line); border-radius:12px; background:linear-gradient(#101827,#0b1220); }
+.chart svg { width:100%; height:100%; display:block; }
+.muted { color:var(--dim); }
+.ok { color:var(--ok); } .bad { color:var(--bad); }
+a { color:#f0d27a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="muted"><a href="index.html#ai">← แดชบอร์ด v1</a> · สลับสินทรัพย์หลายกลุ่ม · คริปโตติ้หมายเลย์ v2</p>
+  <div class="card">
+    <div class="asset-bar" id="assetBar"></div>
+    <div class="row">
+      <h2 id="chartTitle" style="margin:0">XAUUSD · M15</h2>
+      <div class="tf-bar" id="tfBar"></div>
+      <span id="chartPx" class="ok"></span>
+    </div>
+    <p class="muted" id="chartMeta"></p>
+    <div class="chart">
+      <svg viewBox="0 0 640 280" preserveAspectRatio="none">
+        <polyline id="linePrice" fill="none" stroke="#d4b03a" stroke-width="2" points="" />
+        <polyline id="lineMa" fill="none" stroke="#6ea8ff" stroke-width="1" opacity=".6" points="" />
+      </svg>
+    </div>
+  </div>
+</div>
+<script src="chart-assets.js"></script>
+<script>
+const FALLBACK = [
+  {id:"XAUUSD",group:"metal",label:"ทอง",venue:"v1"},
+  {id:"EURUSD",group:"fx",label:"FX",venue:"v1"},
+  {id:"US30",group:"index",label:"US30",venue:"v1"},
+  {id:"ETHUSDT",group:"crypto",label:"ETH",venue:"v2"}
+];
+const ASSETS = window.NEXX_ASSETS || FALLBACK;
+const TFS = ["M1","M5","M15","H1"];
+let currentAsset = ASSETS[0], currentTf = "M15";
+function hashPoints(seed, base) {
+  const pts = []; let y = base;
+  for (let i = 0; i < 16; i++) {
+    y += ((seed * (i + 3)) % 17) - 8;
+    pts.push((10 + i * 41) + "," + Math.max(40, Math.min(240, y)));
+  }
+  return pts.join(" ");
+}
+function paint() {
+  const a = currentAsset;
+  document.getElementById("chartTitle").textContent = a.id + " · " + currentTf;
+  document.getElementById("chartMeta").textContent = a.label + " · " + a.group + " · สิทธิ์ " + a.venue + (a.venue==="v2" ? " (ต้องมีใบ MEM_V2)" : "");
+  document.getElementById("chartPx").textContent = a.venue.toUpperCase();
+  const seed = a.id.split("").reduce((n,c)=>n+c.charCodeAt(0), currentTf.length * 9);
+  document.getElementById("linePrice").setAttribute("points", hashPoints(seed, 160));
+  document.getElementById("lineMa").setAttribute("points", hashPoints(seed + 4, 190));
+  const bar = document.getElementById("assetBar");
+  bar.innerHTML = ASSETS.map(x => `<button class="${x.id===a.id?"on":""}" data-id="${x.id}">${x.id}</button>`).join("");
+  bar.querySelectorAll("button").forEach(b => b.onclick = () => { currentAsset = ASSETS.find(x => x.id===b.dataset.id); paint(); });
+  const tf = document.getElementById("tfBar");
+  tf.innerHTML = TFS.map(t => `<button class="${t===currentTf?"on":""}" data-tf="${t}">${t}</button>`).join("");
+  tf.querySelectorAll("button").forEach(b => b.onclick = () => { currentTf = b.dataset.tf; paint(); });
+}
+paint();
+</script>
+</body>
+</html>
