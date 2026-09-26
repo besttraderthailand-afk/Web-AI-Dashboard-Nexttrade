@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NexxTrade — ชั้นควบคุม</title>
+  <style>
+    :root { --bg:#090d16; --panel:#101827; --line:#2a364a; --txt:#e8eef7; --dim:#8b97ab; --gold:#d4b03a; --ok:#3dd68c; --bad:#f07178; --chip:#1c2738; }
+    body { margin:0; font:14px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--txt); }
+    a { color:#f0d27a; }
+    main { max-width:1100px; margin:0 auto; padding:16px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; margin:0 0 14px; }
+    .grid { display:grid; gap:12px; grid-template-columns:1fr 1fr; }
+    .snap-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .snap-cell { background:#0b1220; border:1px solid var(--line); border-radius:10px; padding:10px; }
+    .snap-cell b { display:block; color:var(--dim); font-size:11px; }
+    input, textarea { width:100%; background:#0b1220; color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:8px; font:inherit; box-sizing:border-box; }
+    button { background:var(--gold); color:#111; border:0; border-radius:10px; padding:9px 12px; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.4; cursor:not-allowed; }
+    .ghost { background:var(--chip); color:var(--txt); border:1px solid var(--line); }
+    .st { font-size:11px; font-weight:700; border-radius:999px; padding:3px 8px; }
+    .st-wait { background:#1c2738; color:#8b97ab; }
+    .st-ok { background:#123526; color:#3dd68c; }
+    .st-bad { background:#3a1518; color:#ffb4b8; }
+    .muted { color:var(--dim); }
+    @media (max-width:800px) { .grid, .snap-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="index.html">← แดชบอร์ด</a> · <a href="index.html#ai">ชาร์ต</a> · ชั้นนี้ไม่ใช่ชาร์ต</p>
+  <div class="card">
+    <h2>ชั้นควบคุม</h2>
+    <p class="muted">เว็บ = คอนโสลคุม · MT5 Assistant / MCP = สมองอ่านชาร์ต · Analyze only เป็นค่าเริ่ม</p>
+    <label><input type="checkbox" id="ctlAnalyzeOnly" checked /> Analyze only</label>
+    <button class="ghost" id="ctlUnlock" type="button">ปลดล็อกปุ่มเทรด</button>
+    <button id="ctlTradeBtn" disabled>เทรด — ล็อก</button>
+    <p id="ctlModeMsg" class="muted"></p>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>SNAP 6 บรรทัฑ</h3>
+      <textarea id="snapText" rows="7" placeholder="SYMBOL: XAUUSD
+TIMEFRAME: M15
+SESSION: LONDON
+BIAS: BULL
+RISK: 0.5%
+SETUP: FVG + OB sweep"></textarea>
+      <p><button id="snapApply" type="button">แปะลงการ์ด</button></p>
+    </div>
+    <div class="card">
+      <h3>การ์ด</h3>
+      <div class="snap-grid" id="snapCard"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>AI Providers · คีย์ลูกค้า ไม่ขึ้น GitHub</h3>
+    <div id="keySlots"></div>
+    <button id="saveKeys" type="button">ตรวจรูปทรงคีย์</button>
+    <p id="keyMsg" class="muted"></p>
+    <div class="grid" id="ctlProviders" style="margin-top:10px"></div>
+  </div>
+</main>
+<script src="control-layer.js"></script>
+<script>
+(function () {
+  const C = window.NexxControl;
+  const store = { keys: {}, mode: C.defaultMode(), snap: C.parseSnap("") };
+  function stClass(s) { return s === "OK" ? "st st-ok" : s === "BAD_KEY" ? "st st-bad" : "st st-wait"; }
+  function renderProviders() {
+    const states = C.providerState(store.keys);
+    document.getElementById("ctlProviders").innerHTML = states.map((s) =>
+      `<div class="snap-cell"><b>${s.label}</b> <span class="${stClass(s.status)}">${s.status}</span><p class="muted">${s.masked || "ว่าง"}</p></div>`
+    ).join("");
+    const slots = document.getElementById("keySlots");
+    if (!slots.dataset.ready) {
+      slots.innerHTML = C.PROVIDERS.map((p) =>
+        `<p><label>${p.label} <span id="st_${p.id}" class="st st-wait">WAIT_KEY</span></label>
+         <input id="key_${p.id}" placeholder="${p.placeholder}" autocomplete="off" /></p>`
+      ).join("");
+      slots.dataset.ready = "1";
+    }
+    states.forEach((s) => {
+      const chip = document.getElementById("st_" + s.id);
+      if (chip) { chip.className = stClass(s.status); chip.textContent = s.status; }
+    });
+    return states;
+  }
+  function renderSnap() {
+    document.getElementById("snapCard").innerHTML = C.snapCard(store.snap).map((c) =>
+      `<div class="snap-cell"><b>${c.label}</b>${c.value}</div>`
+    ).join("");
+  }
+  function renderMode() {
+    const gate = C.canArmTrade(store.mode, C.providerState(store.keys));
+    document.getElementById("ctlModeMsg").textContent = gate.ok
+      ? "พร้อมส่งไปสะพาน MT5 — เว็บไม่ยิงออเดอร์เอง"
+      : "ปุ่มเทรดล็อก · " + gate.reason;
+    const b = document.getElementById("ctlTradeBtn");
+    b.disabled = !gate.ok;
+    b.textContent = gate.ok ? "ส่งคำสั่งเทรด (สะพาน)" : "เทรด — ล็อก";
+    document.getElementById("ctlAnalyzeOnly").checked = store.mode.analyzeOnly;
+  }
+  function refresh() { renderProviders(); renderSnap(); renderMode(); }
+  document.getElementById("saveKeys").onclick = function () {
+    C.PROVIDERS.forEach((p) => { store.keys[p.id] = document.getElementById("key_" + p.id).value; });
+    const states = renderProviders();
+    const ok = states.filter((s) => s.status === "OK").length;
+    const bad = states.filter((s) => s.status === "BAD_KEY").length;
+    document.getElementById("keyMsg").textContent = "OK " + ok + " · WAIT_KEY " + (4 - ok - bad) + " · BAD_KEY " + bad;
+    renderMode();
+  };
+  document.getElementById("snapApply").onclick = function () {
+    store.snap = C.parseSnap(document.getElementById("snapText").value);
+    renderSnap();
+  };
+  document.getElementById("ctlAnalyzeOnly").onchange = function () {
+    store.mode.analyzeOnly = this.checked;
+    if (this.checked) store.mode.tradeUnlocked = false;
+    renderMode();
+  };
+  document.getElementById("ctlUnlock").onclick = function () {
+    store.mode.analyzeOnly = false;
+    store.mode.tradeUnlocked = true;
+    renderMode();
+  };
+  document.getElementById("ctlTradeBtn").onclick = function () {
+    const gate = C.canArmTrade(store.mode, C.providerState(store.keys));
+    if (gate.ok) alert("ผ่านเกตแล้ว — ส่งไปสะพาน MT5 ที่มีอยู่");
+  };
+  refresh();
+})();
+</script>
+</body>
+</html>
