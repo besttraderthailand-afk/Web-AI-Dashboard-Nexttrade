@@ -6,27 +6,27 @@
 
 https://besttraderthailand-afk.github.io/Web-AI-Dashboard-Nexttrade/
 
+หน้าควบคุม (แยกจากชาร์ต):
+https://besttraderthailand-afk.github.io/Web-AI-Dashboard-Nexttrade/control.html
+
 | ไฟล์ | หน้า |
 |---|---|
-| `index.html` | หน้าหลักลูกค้า + แผงควบคุม / SNAP / Analyze-only |
+| `control.html` | ชั้นควบคุม: SNAP / Providers / Analyze-only |
 | `control-layer.js` | โมดูลสถานะคีย์ + parse SNAP 6 บรรทัฑ |
-| `console.html` | แอดมินคอนโสล (เดโม UI) |
-| `ai-chart.html` | TradingView คนละชั้นกับแผงคุม |
+| `index.html` | หน้าหลักลูกค้า |
+| `console.html` | แอดมินคอนโสล |
+| `ai-chart.html` | TradingView คนละชั้น |
 | `docs/CONTROL_LAYER.md` | สเปกชั้นควบคุม |
-| `docs/SIGNAL_LICENSE.md` | สเปก License API + ผูก telegram_chat_id |
-| `signal-api/signal-entitlement.js` | โมดูลสิทธิ์รับสัญญาณ |
-
-ทางลัด: [ควบคุม](https://besttraderthailand-afk.github.io/Web-AI-Dashboard-Nexttrade/#control) · [AI + กราฟ](https://besttraderthailand-afk.github.io/Web-AI-Dashboard-Nexttrade/#ai) · [API Keys](https://besttraderthailand-afk.github.io/Web-AI-Dashboard-Nexttrade/#keys)
 
 ## ชั้นควบคุม (26 ก.ย. 2026)
 
-เว็บ = คอนโสลคุมและโชว์การ์ด  
-MT5 Assistant / MCP = สมองอ่านชาร์ตในเทอร์มินัล  
+เว็บ = คอนโสลคุมและโชว์การ์ด
+MT5 Assistant / MCP = สมองอ่านชาร์ต
 สองชั้นทำงานคู่กัน ไม่ย้ายไปแอปวินโดว์
 
 - 4 ช่องคีย์ OpenAI / Anthropic / Gemini / xAI สถานะ `WAIT_KEY / OK / BAD_KEY`
 - SNAP 6 บรรทัฑ → การ์ด BIAS SESSION RISK SETUP
-- Analyze only เป็นค่าเริ่ม ปุ่มเทรดล็อกจนกว่าจะมีคีย์ OK และปลดล็อกเอง
+- Analyze only เป็นค่าเริ่ม ปุ่มเทรดล็อก
 - คีย์ไม่ขึ้นรีโปนี้
 
 ## Repo นี้เป็นสาธารณะ
