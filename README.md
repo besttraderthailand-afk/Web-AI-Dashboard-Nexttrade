@@ -25,7 +25,9 @@ GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Da
 | `wallet-ui.js` | UI เมนูเชื่อมวอลเล็ต |
 | `console.html` | แอดมินคอนโสล (internal; separate admin URL) |
 | `config.js` | `ADMIN_API_BASE` + `WALLETCONNECT_PROJECT_ID` / BSC / vault |
-| `ai-chart.html` | TradingView คนละชั้น |
+| `ai-chart.html` | TradingView คนละชั้น (เต็มจอ) |
+| `chart-assets.js` | แคตตาล็อกสัญลักษณ์ + map TF → TV |
+| `dashboard-widgets.js` | ฝัง TV ใน `#ai` + ปฏิทิน/ฟีดใน `#news` |
 | `docs/CONTROL_LAYER.md` | สเปกชั้นควบคุม |
 | `docs/SIGNAL_LICENSE.md` | License ↔ Telegram + Subscription |
 
@@ -51,6 +53,22 @@ Admin credentials and bootstrap secrets live in environment / deployment config 
 - Analyze only เป็นค่าเริ่ม ปุ่มเทรดล็อก
 - คีย์ไม่ขึ้นรีโปนี้
 - Customer UI does not link to `console.html`; admins use the separate admin deployment URL
+
+
+
+## กราฟ TradingView + ข่าว (ลูกค้า)
+
+| ส่วน | URL / แท็บ | แหล่งข้อมูล |
+|---|---|---|
+| กราฟสด | https://web-ai-dashboard-nt.vercel.app/#ai | TradingView Advanced Chart · ค่าเริ่ม `OANDA:XAUUSD` M15 |
+| กราฟเต็มจอ | https://web-ai-dashboard-nt.vercel.app/ai-chart.html | ชุดเดียวกัน + สลับสินทรัพย์ v1 |
+| ปฏิทินเศรษฐกิจ | https://web-ai-dashboard-nt.vercel.app/#news | TradingView Economic Calendar widget |
+| ฟีดข่าวทอง | https://web-ai-dashboard-nt.vercel.app/#news | TradingView Timeline · symbol `OANDA:XAUUSD` |
+
+**ยังเป็น mock / ช่องว่าง**
+- AI Chat บน `#ai` ยังตอบตัวอย่างในเบราว์เซอร์ (ยังไม่ยิงคีย์ลูกค้า)
+- ชำระเงิน / Cap / IB ยังจำลองจนกว่ามี vault
+- Repo `gold-trading-news-automation` มีสแกนเนอร์จริง (biquote + Forex Factory JSON + RSS) แต่ **ยังไม่มี public HTTP API** ให้แดชบอร์ดดึง — เว็บจึงใช้วิดเจ็ต TradingView แทนจนกว่าจะมี backend `/news`
 
 ## Web3 เชื่อมวอลเล็ต (Phase 1)
 
