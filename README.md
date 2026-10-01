@@ -30,6 +30,7 @@ GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Da
 | `dashboard-widgets.js` | ฝัง TV ใน `#ai` + ปฏิทิน/ฟีดใน `#news` |
 | `docs/CONTROL_LAYER.md` | สเปกชั้นควบคุม |
 | `docs/SIGNAL_LICENSE.md` | License ↔ Telegram + Subscription |
+| `docs/MARKETING.md` | Locked marketing rules (admin/ops only — not for customer UI) |
 | `catalog/eas.json` | Static EA license catalog (fallback) |
 | `catalog-ui.js` | Load catalog (API→static) + license/signal UI hooks |
 
@@ -110,3 +111,8 @@ window.WALLETCONNECT_PROJECT_ID = "YOUR_REOWN_PROJECT_ID";
 
 ### ชำระเงิน
 ปุ่มจ่าย 20 USDT ยังเป็น **จำลอง** จนกว่าจะมี `USDT_PAYMENT_VAULT` ใน config — ห้ามเดาที่อยู่ vault
+
+## Marketing (internal)
+
+กติกาคอมเพนเสชันล็อกไว้ที่ [`docs/MARKETING.md`](./docs/MARKETING.md) และแท็บ **Marketing (internal)** ใน `console.html`.
+หน้าลูกค้าแสดงแค่ราคาแพ็ก **20 USDT** — ไม่โชว์ตาราง Tier/Unilevel/Pool/Leadership.

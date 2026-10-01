@@ -60,6 +60,7 @@
         <button data-tab="pay">เงิน / Claim</button>
         <button data-tab="ai">AI Cap</button>
         <button data-tab="audit">Audit</button>
+        <button data-tab="marketing">Marketing (internal)</button>
       </nav>
       <section>
         <div id="tab-eas"></div>
@@ -67,6 +68,7 @@
         <div id="tab-pay" class="hidden"></div>
         <div id="tab-ai" class="hidden"></div>
         <div id="tab-audit" class="hidden"></div>
+        <div id="tab-marketing" class="hidden"></div>
         <pre id="out"></pre>
       </section>
     </main>
@@ -183,7 +185,7 @@ document.querySelectorAll("nav button").forEach((b) => {
 });
 
 async function loadTab(name) {
-  ["eas","members","pay","ai","audit"].forEach((t) => {
+  ["eas","members","pay","ai","audit","marketing"].forEach((t) => {
     const el = $("tab-" + t);
     el.classList.toggle("hidden", t !== name);
   });
@@ -261,7 +263,7 @@ async function loadTab(name) {
   if (name === "pay") {
     const l = await api("GET", "/pay/ledger");
     $("tab-pay").innerHTML = `<div class="card"><h3>เครดิตภายใน</h3>
-      <p class="dim">Admin: company remainder / compensation report อยู่ฝั่ง backend เท่านั้น (ไม่โชว์บนหน้าลูกค้า) · Tier จ่ายทันที — ไม่มี hold รอครบ 100 คน</p>
+      <p class="dim">Company remainder / compensation report = backend + แท็บ <b>Marketing (internal)</b> · ลูกค้าเห็นแค่ราคาแพ็ก 20 USDT · Tier จ่ายทันที (ไม่มี hold รอครบ 100 คน)</p>
       <pre>${JSON.stringify(l.data, null, 2)}</pre>
       <div class="row">
         <input id="adjId" value="mem_1002" />
@@ -271,6 +273,40 @@ async function loadTab(name) {
     $("adjBtn").onclick = () => api("POST", "/pay/credit/adjust", {
       memberId: $("adjId").value, amountUsdt: Number($("adjAmt").value),
     }).catch((e) => alert(e.message));
+  }
+  if (name === "marketing") {
+    $("tab-marketing").innerHTML = `<div class="card">
+      <h3>Marketing plan (internal) — locked 2026-10-01</h3>
+      <p class="dim">สำหรับ ops / admin เท่านั้น · <b>ห้ามโชว์ตารางนี้บนหน้าลูกค้า</b> · ลูกค้าเห็นแค่ราคาแพ็ก <b>20 USDT</b> · ดูรายละเอียดเต็มใน <code>docs/MARKETING.md</code></p>
+      <table>
+        <thead><tr><th>รายการ</th><th>กติกาล็อก</th></tr></thead>
+        <tbody>
+          <tr><td>Package price</td><td><b>20 USDT</b></td></tr>
+          <tr><td>Referral Tier 1–3</td><td>Fixed <b>15% / 10% / 5%</b> = <b>30%</b> · จ่ายทันที</td></tr>
+          <tr><td>Tier scope</td><td><b>แพ็กเกจเท่านั้น</b> (รวมซื้อซ้ำ) · <b>ไม่จ่าย</b> บน Cap / EA·AI rental / บริการอื่น</td></tr>
+          <tr><td>Unilevel</td><td><b>10 ชั้น × 3%</b> = <b>21%</b> (แพ็กเกจเท่านั้น)</td></tr>
+          <tr><td>Leadership</td><td><b>8%</b> ปลดล็อกครั้งเดียว จาก volume แพ็กสะสมใต้ 10 ชั้นดาวน์ไลน์</td></tr>
+          <tr><td>Leadership thresholds</td><td>เริ่ม <b>200 USDT</b> แล้วคูณสองทุกขั้น: 200 → 400 → 800 → 1600 → …</td></tr>
+          <tr><td>Pool</td><td><b>12%</b> ของแพ็ก · น้ำหนักแรงก์ด้านล่าง</td></tr>
+          <tr><td>Company remainder</td><td>หลังจ่ายมาร์เก็ตติ้งเต็ม ≈ <b>~29%</b> ของแพ็ก → รายงานแอดมินเท่านั้น</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Pool ranks + KPI volume</h3>
+      <table>
+        <thead><tr><th>Rank</th><th>Weight</th><th>Team volume gate (USDT)</th></tr></thead>
+        <tbody>
+          <tr><td>Bronze</td><td>10%</td><td>200</td></tr>
+          <tr><td>Silver</td><td>15%</td><td>1,000</td></tr>
+          <tr><td>Gold</td><td>20%</td><td>5,000</td></tr>
+          <tr><td>Diamond</td><td>25%</td><td>20,000</td></tr>
+          <tr><td>Legend</td><td>30%</td><td>80,000</td></tr>
+        </tbody>
+      </table>
+      <p class="dim" style="margin-top:10px">Volume สำหรับ rank + Pool KPI = <b>ยอดจ่ายทั้งหมด</b> (แพ็ก + Cap + EA/AI + บริการอื่น) · สะสมรายเดือน · เดือนถัดไปไม่ผ่าน KPI แรงก์ → <b>ไม่มี Pool เดือนนั้น</b></p>
+      <p class="dim">Tier / Unilevel / Leadership ใช้ volume <b>แพ็กเกจเท่านั้น</b> · อย่าสับสนกับ KPI ของ Pool</p>
+    </div>`;
   }
   if (name === "ai") {
     const u = await api("GET", "/ai/usage");
