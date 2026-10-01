@@ -135,10 +135,18 @@
       });
       if (r.status === 404) {
         setSigMsg(
-          "API ยังไม่มี /license/verify — รอ backend ต่อสาย (ดู docs/SIGNAL_LICENSE.md) · แคตตาล็อก EA ใช้ได้แล้ว",
+          "API ยังไม่มี /license/verify — รอ Admin API redeploy (ดู docs/SIGNAL_LICENSE.md)",
           false
         );
         paintEntitlement(null, true);
+        return;
+      }
+      if (r.status === 503) {
+        setSigMsg(
+          (j.message || "บริการยังไม่พร้อม") + " (HTTP 503)",
+          false
+        );
+        paintEntitlement(null, false);
         return;
       }
       if (!r.ok) {
@@ -171,7 +179,7 @@
     if (!box) return;
     if (pendingBackend) {
       box.innerHTML =
-        '<p class="muted">UI พร้อมแล้ว — รอ <code>POST /license/verify</code> บน Admin API / nexttrade-backend</p>';
+        '<p class="muted">UI พร้อมแล้ว — รอ <code>POST /license/verify</code> บน Admin API</p>';
       if (bindBtn) bindBtn.disabled = true;
       return;
     }
@@ -203,11 +211,63 @@
     }
   }
 
-  function startTelegramLink() {
-    setSigMsg(
-      "ผูก Telegram ต้องมี POST /signal/start-link ฝั่ง server — ยังไม่เปิดบน Vercel ชั่วคราว (ดู docs/SIGNAL_LICENSE.md)",
-      false
-    );
+  async function startTelegramLink() {
+    const key = (document.getElementById("sigKey") || {}).value || "";
+    const ea = (document.getElementById("sigEa") || {}).value || "";
+    const trimmed = String(key).trim();
+    if (!trimmed || !ea) {
+      setSigMsg("ใส่ license key และเลือก EA ก่อนผูก Telegram", false);
+      return;
+    }
+    const base = apiBase();
+    if (!base) {
+      setSigMsg("ยังไม่ได้ตั้ง ADMIN_API_BASE ใน config.js", false);
+      return;
+    }
+    setSigMsg("กำลังขอลิงก์ Telegram…", null);
+    try {
+      const r = await fetch(base + "/signal/start-link", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "omit",
+        body: JSON.stringify({ key: trimmed, ea: ea }),
+      });
+      const j = await r.json().catch(function () {
+        return {};
+      });
+      if (r.status === 503 || (j.error && String(j.error).indexOf("telegram") >= 0) || j.code === "telegram_bot_unset" || j.code === "bot_token_unset") {
+        setSigMsg(
+          (j.message || "บอทยังไม่ตั้งค่า") +
+            " — ตั้ง TELEGRAM_BOT_USERNAME (+ SIGNAL_BOT_TOKEN ฝั่งบอท) บน Admin API แล้วลองใหม่",
+          false
+        );
+        return;
+      }
+      if (r.status === 404) {
+        setSigMsg(
+          "API ยังไม่มี /signal/start-link — รอ Admin API redeploy (ดู docs/SIGNAL_LICENSE.md)",
+          false
+        );
+        return;
+      }
+      if (!r.ok) {
+        setSigMsg(
+          (j.message || j.error || "start-link failed") + " (HTTP " + r.status + ")",
+          false
+        );
+        return;
+      }
+      const data = j.data || j;
+      const link = data.telegram_deep_link || data.deep_link;
+      if (!link) {
+        setSigMsg("ได้ตอบกลับแต่ไม่มี deep link", false);
+        return;
+      }
+      setSigMsg("เปิดลิงก์ Telegram แล้ว · หมดอายุใน 15 นาที", true);
+      window.open(link, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      setSigMsg("เรียก start-link ไม่ได้: " + (e.message || e), false);
+    }
   }
 
   async function init() {
