@@ -35,6 +35,8 @@
   <div id="login" class="card">
     <h2>Admin console</h2>
     <p class="dim">ล็อกอินอีเมล — คนละระบบกับวอลเล็ตลูกค้า</p>
+    <div class="row"><input id="apiBase" style="flex:1" placeholder="API base URL เช่น https://….vercel.app" /></div>
+    <p class="dim" style="margin:4px 0 0;font-size:12px">ชี้ไปที่ Admin API (เก็บใน localStorage) · หรือใช้ ?api=URL</p>
     <div class="row"><input id="email" style="flex:1" value="owner@nexxtrade.local" /></div>
     <div class="row"><input id="password" type="password" style="flex:1" placeholder="รหัสผ่าน" value="changeme" /></div>
     <label class="dim"><input id="stepup" type="checkbox" /> step-up 2FA ทันที (งานกระเป๋า)</label>
@@ -69,23 +71,65 @@
       </section>
     </main>
   </div>
+<script src="config.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
+const LS_API = "admin_api_base";
 let token = sessionStorage.getItem("admin_token") || "";
 let me = null;
 
+function normalizeBase(u) {
+  return String(u || "").trim().replace(/\/+$/, "");
+}
+
+/** Priority: ?api= → localStorage → window.ADMIN_API_BASE (config.js) → "" (same-origin / relative) */
+function resolveApiBase() {
+  const q = new URLSearchParams(location.search);
+  const fromQuery = q.get("api") || q.get("adminApi");
+  if (fromQuery) {
+    const n = normalizeBase(fromQuery);
+    try { localStorage.setItem(LS_API, n); } catch {}
+    return n;
+  }
+  try {
+    const stored = localStorage.getItem(LS_API);
+    if (stored) return normalizeBase(stored);
+  } catch {}
+  if (typeof window.ADMIN_API_BASE === "string" && window.ADMIN_API_BASE) {
+    return normalizeBase(window.ADMIN_API_BASE);
+  }
+  return "";
+}
+
+let apiBase = resolveApiBase();
+if ($("apiBase")) $("apiBase").value = apiBase;
+
+function setApiBase(v) {
+  apiBase = normalizeBase(v);
+  try {
+    if (apiBase) localStorage.setItem(LS_API, apiBase);
+    else localStorage.removeItem(LS_API);
+  } catch {}
+}
+
 async function api(method, path, body) {
-  const res = await fetch(path, {
-    method,
-    headers: {
-      "content-type": "application/json",
-      ...(token ? { authorization: "Bearer " + token } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const url = (apiBase || "") + path;
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: {
+        "content-type": "application/json",
+        ...(token ? { authorization: "Bearer " + token } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (net) {
+    throw Object.assign(new Error("เครือข่ายล้มเหลว — ตรวจ API base / CORS: " + (apiBase || "(relative)")), { cause: net });
+  }
   const json = await res.json().catch(() => ({}));
-  $("out").textContent = JSON.stringify(json, null, 2);
-  if (!res.ok) throw Object.assign(new Error(json.message || res.statusText), json);
+  if ($("out")) $("out").textContent = JSON.stringify(json, null, 2);
+  if (!res.ok) throw Object.assign(new Error(json.message || res.statusText || String(res.status)), json);
   return json;
 }
 
@@ -99,6 +143,7 @@ function showApp() {
 $("btnLogin").onclick = async () => {
   $("loginErr").textContent = "";
   try {
+    if ($("apiBase")) setApiBase($("apiBase").value);
     const r = await api("POST", "/auth/login", {
       email: $("email").value,
       password: $("password").value,
@@ -119,7 +164,15 @@ $("btnOut").onclick = () => {
   sessionStorage.clear();
   location.reload();
 };
-$("btnStep").onclick = () => api("POST", "/auth/step-up", {}).catch((e) => alert(e.message));
+$("btnStep").onclick = async () => {
+  try {
+    const r = await api("POST", "/auth/step-up", {});
+    if (r.token) {
+      token = r.token;
+      sessionStorage.setItem("admin_token", token);
+    }
+  } catch (e) { alert(e.message); }
+};
 
 document.querySelectorAll("nav button").forEach((b) => {
   b.onclick = () => {
