@@ -1,0 +1,263 @@
+/**
+ * BYOK chat proxy for Vercel serverless.
+ * Customer API key MUST arrive in X-Customer-Api-Key (or body.api_key).
+ * Never reads company env keys for LLM. No secrets in repo.
+ */
+const SYSTEM = [
+  "You are Nexttrade AI assistant for a Thai FX/gold trader dashboard.",
+  "Answer in the user's language (Thai if they write Thai).",
+  "Discuss bias, session, news risk, EA rules at a high level.",
+  "Never invent live fills, balances, or order tickets. Keep answers concise.",
+].join(" ");
+
+function cors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Customer-Api-Key");
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    if (req.body && typeof req.body === "object") {
+      resolve(req.body);
+      return;
+    }
+    let raw = "";
+    req.on("data", (c) => {
+      raw += c;
+      if (raw.length > 200000) {
+        reject(new Error("body_too_large"));
+      }
+    });
+    req.on("end", () => {
+      try {
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch (e) {
+        reject(e);
+      }
+    });
+    req.on("error", reject);
+  });
+}
+
+async function callOpenAI(key, messages) {
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + key,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      temperature: 0.2,
+      messages,
+    }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const err = new Error((j && j.error && j.error.message) || "openai_http_" + r.status);
+    err.status = r.status;
+    throw err;
+  }
+  return j.choices[0].message.content;
+}
+
+async function callXai(key, messages) {
+  const r = await fetch("https://api.x.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + key,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: process.env.XAI_MODEL || "grok-4",
+      temperature: 0.2,
+      messages,
+    }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const err = new Error((j && j.error && j.error.message) || "xai_http_" + r.status);
+    err.status = r.status;
+    throw err;
+  }
+  return j.choices[0].message.content;
+}
+
+async function callAnthropic(key, messages) {
+  let system = SYSTEM;
+  const turns = [];
+  for (const m of messages) {
+    if (m.role === "system") system = m.content;
+    else turns.push({ role: m.role, content: m.content });
+  }
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": key,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5",
+      max_tokens: 1200,
+      temperature: 0.2,
+      system,
+      messages: turns,
+    }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const err = new Error((j && j.error && j.error.message) || "anthropic_http_" + r.status);
+    err.status = r.status;
+    throw err;
+  }
+  return j.content[0].text;
+}
+
+async function callGemini(key, messages) {
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  let system = "";
+  const contents = [];
+  for (const m of messages) {
+    if (m.role === "system") {
+      system = m.content;
+      continue;
+    }
+    contents.push({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    });
+  }
+  const body = { contents };
+  if (system) body.systemInstruction = { parts: [{ text: system }] };
+  const r = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+      model +
+      ":generateContent?key=" +
+      encodeURIComponent(key),
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }
+  );
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const err = new Error((j && j.error && j.error.message) || "gemini_http_" + r.status);
+    err.status = r.status;
+    throw err;
+  }
+  return j.candidates[0].content.parts[0].text;
+}
+
+module.exports = async function handler(req, res) {
+  cors(res);
+  if (req.method === "OPTIONS") {
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
+  if (req.method !== "POST") {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ ok: false, error: "method_not_allowed" }));
+    return;
+  }
+
+  let body;
+  try {
+    body = await readBody(req);
+  } catch (e) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ ok: false, error: "invalid_json", reply: "" }));
+    return;
+  }
+
+  const key =
+    (req.headers["x-customer-api-key"] && String(req.headers["x-customer-api-key"]).trim()) ||
+    (body.api_key && String(body.api_key).trim()) ||
+    (body.apiKey && String(body.apiKey).trim()) ||
+    "";
+
+  // Explicit: do NOT fall back to process.env.*_API_KEY (company keys).
+  // Optional future: set CHAT_ALLOW_SERVER_KEYS=1 + env keys to enable company-paid LLM.
+  const allowServer = String(process.env.CHAT_ALLOW_SERVER_KEYS || "") === "1";
+  let provider = String(body.provider || "xai").toLowerCase();
+  if (provider === "grok") provider = "xai";
+
+  let effectiveKey = key;
+  if (!effectiveKey && allowServer) {
+    const envMap = {
+      openai: process.env.OPENAI_API_KEY,
+      anthropic: process.env.ANTHROPIC_API_KEY,
+      gemini: process.env.GEMINI_API_KEY,
+      xai: process.env.XAI_API_KEY,
+    };
+    effectiveKey = (envMap[provider] || "").trim();
+  }
+
+  if (!effectiveKey) {
+    res.statusCode = 401;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(
+      JSON.stringify({
+        ok: false,
+        error: "no_customer_key",
+        gated: true,
+        reply:
+          "ต้องมีคีย์ลูกค้าในหัวข้อ X-Customer-Api-Key (หรือรัน Local Agent) — โหมดคีย์บริษัทปิดอยู่ (CHAT_ALLOW_SERVER_KEYS≠1)",
+      })
+    );
+    return;
+  }
+
+  const message = String(body.message || body.text || "").trim();
+  if (!message) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ ok: false, error: "empty_message", reply: "" }));
+    return;
+  }
+
+  const history = Array.isArray(body.history) ? body.history : [];
+  const messages = [{ role: "system", content: SYSTEM }];
+  for (const turn of history.slice(-12)) {
+    const role = turn && turn.role;
+    const content = turn && String(turn.content || "").trim();
+    if ((role === "user" || role === "assistant") && content) {
+      messages.push({ role, content });
+    }
+  }
+  messages.push({ role: "user", content: message });
+
+  try {
+    let reply;
+    if (provider === "openai") reply = await callOpenAI(effectiveKey, messages);
+    else if (provider === "anthropic") reply = await callAnthropic(effectiveKey, messages);
+    else if (provider === "gemini") reply = await callGemini(effectiveKey, messages);
+    else if (provider === "xai") reply = await callXai(effectiveKey, messages);
+    else {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ ok: false, error: "unknown_provider", reply: "" }));
+      return;
+    }
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ ok: true, provider, reply, gated: false, source: key ? "byok" : "server_env" }));
+  } catch (e) {
+    res.statusCode = e.status && e.status >= 400 ? e.status : 502;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(
+      JSON.stringify({
+        ok: false,
+        error: "provider_error",
+        detail: String(e.message || e),
+        reply: "ผู้ให้บริการโมเดลตอบผิดพลาด — ตรวจคีย์/โควตา",
+        provider,
+      })
+    );
+  }
+};

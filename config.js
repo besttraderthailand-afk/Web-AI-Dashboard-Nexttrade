@@ -37,3 +37,14 @@ window.CATALOG_STATIC_URL = window.CATALOG_STATIC_URL || "./catalog/eas.json";
  */
 window.NEXTTRADE_BACKEND_URL = window.NEXTTRADE_BACKEND_URL || "";
 
+
+/* Local Nexttrade-AI-Agent bridge (customer PC). Dashboard probes /health then /chat.
+ * Override: window.LOCAL_AGENT_URL before load, or leave default.
+ */
+window.LOCAL_AGENT_URL = window.LOCAL_AGENT_URL || "http://127.0.0.1:8787";
+
+/* Optional chat proxy (BYOK). Empty = same-origin "/api/chat" on Vercel.
+ * Proxy never invents company keys; customer sends X-Customer-Api-Key.
+ * Company-paid LLM only if deploy sets CHAT_ALLOW_SERVER_KEYS=1 + env keys.
+ */
+window.CHAT_PROXY_URL = window.CHAT_PROXY_URL || "";
