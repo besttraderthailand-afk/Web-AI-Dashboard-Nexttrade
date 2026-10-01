@@ -111,6 +111,7 @@
       <button data-page="aff">Affiliate / IB</button>
       <button data-page="tree">ผังสมาชิก</button>
       <button data-page="keys">API Keys</button>
+      <a class="ghost" href="control.html" style="display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;text-decoration:none;border:1px solid var(--line);background:var(--chip);color:var(--txt);font-weight:700;font-size:13px">Control AI</a>
     </nav>
     <div class="spacer"></div>
     <div class="wallet-wrap">
@@ -151,7 +152,7 @@
         </div>
       </div>
       <div class="grid cols-3">
-        <div class="card"><h2>สัญญาณ Multi-EA</h2><p>Magic EEESSSSS · registry 001–008 · บางตัวต้องซื้อไลเซนส์</p></div>
+        <div class="card"><h2>สัญญาณ Multi-EA</h2><p>Magic EEESSSSS · แคตตาล็อกจาก registry จริง</p><p class="muted" id="homeEaCount">กำลังโหลด…</p><p><a href="#pay">ดูไลเซนส์ EA</a> · <a href="control.html">ชั้นควบคุม AI</a></p></div>
         <div class="card"><h2>AI ของลูกค้า</h2><p>ใส่คีย์ OpenAI / Claude / Gemini / Grok เอง มี Soft/Hard Cap กันบอท</p></div>
         <div class="card"><h2>Web3 Claim</h2><p>รับ 17 USDT เข้า Vault · เครดิตในเว็บ · ถอนเองเมื่อครบ 10 USDT</p></div>
       </div>
@@ -184,7 +185,8 @@
             <input id="q" placeholder="ถามเรื่องกราฟหรือข่าว..." />
             <button class="btn" id="ask">ส่ง</button>
           </div>
-          <p class="muted">Cap วันนี้ 12/80 ข้อความ · Soft Cap ยังไม่ชน</p>
+          <p class="muted">Cap วันนี้ 12/80 ข้อความ · Soft Cap ยังไม่ชน · แชตนี้ยังเป็นตัวอย่างในเบราว์เซอร์ (ไม่ยิงคีย์ลูกค้า)</p>
+          <p class="muted"><a href="control.html">เปิดชั้นควบคุม</a> — SNAP / Analyze-only / ตรวจรูปทรงคีย์ · เว็บไม่ยิงออเดอร์เอง</p>
         </div>
       </div>
     </section>
@@ -226,6 +228,17 @@
         <div class="card">
           <h2>ไลเซนส์ EA ที่ต้องซื้อแยก</h2>
           <div id="licList">กำลังโหลดแคตตาล็อก...</div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:14px 0" />
+          <h3 style="margin:0 0 8px;font-size:15px">ตรวจสิทธิ์ License ↔ สัญญาณ</h3>
+          <p class="muted">ใส่คีย์ที่ได้รับจากแอดมิน · เรียก <code>/license/verify</code> เมื่อ API พร้อม (ดู docs/SIGNAL_LICENSE.md)</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+            <input id="sigKey" placeholder="NT-XXXX-…" style="flex:1;min-width:160px;background:#0b1220;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px" autocomplete="off" />
+            <select id="sigEa" style="background:#0b1220;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px;min-width:140px"></select>
+            <button class="ghost" id="sigVerify" type="button">ตรวจสิทธิ์</button>
+            <button class="ghost" id="sigBindTg" type="button" disabled>ผูก Telegram</button>
+          </div>
+          <div id="sigEntitlement"></div>
+          <p id="sigMsg" class="muted"></p>
         </div>
       </div>
       <div class="grid cols-2" style="margin-top:14px">
@@ -382,6 +395,7 @@ A  Active<br>
         <p>วันนี้ <b>80/80</b> ข้อความ — Soft Cap เต็ม</p>
         <p>เดือนนี้ <b>150,000/150,000</b> โทเค็น — Hard Cap เต็ม แชตถูกบล็อก</p>
         <div class="warn">หมดโควตาแล้ว ซื้อเพิ่มได้ขั้นต่ำ 5 USDT แผนแบ่งเงินเหมือนแพ็กเกจสมาชิก</div>
+        <p class="muted" style="margin-top:10px">สถานะคีย์แบบ WAIT_KEY / OK / BAD_KEY + SNAP / Analyze-only อยู่ที่ <a href="control.html">control.html</a> (ชั้นควบคุมแยกจากชาร์ต)</p>
         <div style="display:flex;gap:8px;margin:10px 0;">
           <input id="capAmt" type="number" min="5" step="1" value="5" />
           <button class="btn" id="buyCap">ซื้อ Cap</button>
@@ -398,12 +412,13 @@ A  Active<br>
       </div>
     </section>
   </main>
-  <footer>ตัวอย่างเพื่อตรวจเลย์เอาต์และกติกา · ลูกค้าใช้วอลเล็ตเท่านั้น</footer>
+  <footer>ตัวอย่างเพื่อตรวจเลย์เอาต์และกติกา · ลูกค้าใช้วอลเล็ตเท่านั้น · <a href="control.html">Control AI</a> · <a href="./catalog/eas.json">EA catalog JSON</a></footer>
 <script src="./config.js"></script>
 <script src="./chart-assets.js"></script>
 <script src="./dashboard-widgets.js"></script>
 <script src="./wallet-connect.js"></script>
 <script src="./wallet-ui.js"></script>
+<script src="./catalog-ui.js"></script>
 <script>
 const pages = document.querySelectorAll(".page");
 const navBtns = document.querySelectorAll("nav.top button");
@@ -426,7 +441,17 @@ document.getElementById("ask").onclick = () => {
   log.scrollTop = log.scrollHeight;
 };
 document.getElementById("payMem").onclick = () => {
-  document.getElementById("payMsg").textContent = "จำลองสำเร็จ — สถานะ Active · เดิน Unilevel 3.570 USDT ตามกติกา roll-up";
+  const vault = String(window.USDT_PAYMENT_VAULT || "").trim();
+  const msg = document.getElementById("payMsg");
+  const note = document.getElementById("payVaultNote");
+  if (!vault) {
+    msg.className = "ok";
+    msg.textContent = "จำลองสำเร็จ — สถานะ Active · เดิน Unilevel 3.570 USDT ตามกติกา roll-up (ยังไม่ยิงเชน — ไม่มี USDT_PAYMENT_VAULT)";
+    if (note) note.textContent = "ชำระ USDT จริงยังปิดอยู่ — ตั้ง window.USDT_PAYMENT_VAULT ใน config.js เมื่อมีที่อยู่ vault จริง (อย่าเดาที่อยู่)";
+    return;
+  }
+  msg.className = "muted";
+  msg.textContent = "พบ vault ใน config แล้ว แต่ on-chain transfer ยังไม่ต่อในเฟสนี้ — ยังไม่ยิงเชน";
 };
 document.getElementById("saveIb").onclick = () => {
   const u = document.getElementById("ibUrl").value.trim();
@@ -469,17 +494,6 @@ document.getElementById("buyCap").onclick = () => {
   msg.textContent = "จำลองซื้อ Cap " + n + " USDT · บริษัท " + company + " · การตลาด " + market + " · ปลด Soft/Hard Cap ตามสัดส่วน";
 };
 
-fetch("/catalog/eas").then((r) => r.json()).then((j) => {
-  const eas = (j.data && j.data.eas) || [];
-  const box = document.getElementById("licList");
-  box.innerHTML = eas.map((e) => `<div class="news-item"><b>${e.code}</b> ${e.name}
-    ${e.license_required
-      ? `<span class="tag">ซื้อ ${e.license_price_usdt} USDT</span> → ${e.checkout_path}`
-      : `<span class="ok">รวมในแพ็กเกจ</span>`}
-  </div>`).join("");
-}).catch(() => {
-  document.getElementById("licList").textContent = "เปิดเซิร์ฟเวอร์เพื่อโหลดแคตตาล็อกจริง";
-});
 </script>
 </body>
 </html>

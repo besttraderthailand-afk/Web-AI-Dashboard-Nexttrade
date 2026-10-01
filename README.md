@@ -30,6 +30,8 @@ GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Da
 | `dashboard-widgets.js` | ฝัง TV ใน `#ai` + ปฏิทิน/ฟีดใน `#news` |
 | `docs/CONTROL_LAYER.md` | สเปกชั้นควบคุม |
 | `docs/SIGNAL_LICENSE.md` | License ↔ Telegram + Subscription |
+| `catalog/eas.json` | Static EA license catalog (fallback) |
+| `catalog-ui.js` | Load catalog (API→static) + license/signal UI hooks |
 
 Admin credentials and bootstrap secrets live in environment / deployment config — not in this README.
 
@@ -65,10 +67,17 @@ Admin credentials and bootstrap secrets live in environment / deployment config 
 | ปฏิทินเศรษฐกิจ | https://web-ai-dashboard-nt.vercel.app/#news | TradingView Economic Calendar widget |
 | ฟีดข่าวทอง | https://web-ai-dashboard-nt.vercel.app/#news | TradingView Timeline · symbol `OANDA:XAUUSD` |
 
+**ต่อสายแล้ว (ลูกค้า)**
+- EA license catalog: `GET {ADMIN_API_BASE}/catalog/eas` → fallback `./catalog/eas.json`
+- Control AI: [`control.html`](./control.html) ลิงก์จากแถบนำทาง / หน้า AI / Keys / footer
+- License↔signal UI hooks บน `#pay` (เรียก `/license/verify` เมื่อ API มี — ตอนนี้แสดงข้อความรอ backend)
+
 **ยังเป็น mock / ช่องว่าง**
 - AI Chat บน `#ai` ยังตอบตัวอย่างในเบราว์เซอร์ (ยังไม่ยิงคีย์ลูกค้า)
-- ชำระเงิน / Cap / IB ยังจำลองจนกว่ามี vault
-- Repo `gold-trading-news-automation` มีสแกนเนอร์จริง (biquote + Forex Factory JSON + RSS) แต่ **ยังไม่มี public HTTP API** ให้แดชบอร์ดดึง — เว็บจึงใช้วิดเจ็ต TradingView แทนจนกว่าจะมี backend `/news`
+- ชำระเงิน / Cap / IB ยังจำลองจนกว่ามี `USDT_PAYMENT_VAULT` จริง (อย่าเดาที่อยู่)
+- `POST /license/verify` + Telegram bind ยังไม่มีบน Admin API ชั่วคราว — UI พร้อมแล้ว
+- Repo `gold-trading-news-automation` มีสแกนเนอร์จริง แต่ **ยังไม่มี public HTTP API** และต้องมี secrets — อย่า proxy บน Vercel จนกว่าผู้ใช้ให้คีย์; เว็บใช้วิดเจ็ต TradingView
+- `nexttrade-backend` (`/news/guard`, `/scan`) ยังไม่ deploy สาธารณะให้โดเมนนี้
 
 ## Web3 เชื่อมวอลเล็ต (Phase 1)
 
