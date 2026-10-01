@@ -29,3 +29,11 @@ window.USDT_PAYMENT_VAULT = window.USDT_PAYMENT_VAULT || "";
  * Fallback static file (always ship with Pages/Vercel static):
  */
 window.CATALOG_STATIC_URL = window.CATALOG_STATIC_URL || "./catalog/eas.json";
+
+/* nexttrade-backend (scan / news / rules / notify) — set ONLY after a real public URL exists.
+ * Leave empty until VPS/Docker deploy is live. Do not invent a host.
+ * Example: "https://api.your-domain.com"
+ * CORS on the backend must include this dashboard origin.
+ */
+window.NEXTTRADE_BACKEND_URL = window.NEXTTRADE_BACKEND_URL || "";
+

@@ -24,7 +24,7 @@ GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Da
 | `wallet-connect.js` | EIP-1193 MetaMask/injected + WC scaffold |
 | `wallet-ui.js` | UI เมนูเชื่อมวอลเล็ต |
 | `console.html` | แอดมินคอนโสล (internal; separate admin URL) |
-| `config.js` | `ADMIN_API_BASE` + `WALLETCONNECT_PROJECT_ID` / BSC / vault |
+| `config.js` | `ADMIN_API_BASE` + `NEXTTRADE_BACKEND_URL` (placeholder) + WC / BSC / vault |
 | `ai-chart.html` | TradingView คนละชั้น (เต็มจอ) |
 | `chart-assets.js` | แคตตาล็อกสัญลักษณ์ + map TF → TV |
 | `dashboard-widgets.js` | ฝัง TV ใน `#ai` + ปฏิทิน/ฟีดใน `#news` |
@@ -78,7 +78,7 @@ Admin credentials and bootstrap secrets live in environment / deployment config 
 - ชำระเงิน / Cap / IB ยังจำลองจนกว่ามี `USDT_PAYMENT_VAULT` จริง (อย่าเดาที่อยู่)
 - `POST /license/verify` + Telegram bind ยังไม่มีบน Admin API ชั่วคราว — UI พร้อมแล้ว
 - Repo `gold-trading-news-automation` มีสแกนเนอร์จริง แต่ **ยังไม่มี public HTTP API** และต้องมี secrets — อย่า proxy บน Vercel จนกว่าผู้ใช้ให้คีย์; เว็บใช้วิดเจ็ต TradingView
-- `nexttrade-backend` (`/news/guard`, `/scan`) ยังไม่ deploy สาธารณะให้โดเมนนี้
+- `nexttrade-backend` (`/news/guard`, `/scan`) ยังไม่ deploy สาธารณะ — ตั้ง `NEXTTRADE_BACKEND_URL` ใน `config.js` หลังมี URL จริง (ดู `docs/DEPLOY.md` ใน repo backend)
 
 ## Web3 เชื่อมวอลเล็ต (Phase 1)
 
