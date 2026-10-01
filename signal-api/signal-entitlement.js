@@ -1,3 +1,7 @@
+/**
+ * ORPHAN MIRROR — live routes live on NexxTrade-EA-Admin-Private (admin/signal-entitlement.js).
+ * Keep in sync for docs/reference. Do not invent SIGNAL_BOT_TOKEN here.
+ */
 "use strict";
 
 const crypto = require("crypto");

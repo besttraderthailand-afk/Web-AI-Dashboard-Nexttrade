@@ -1,6 +1,7 @@
 # License ↔ Telegram Signal Entitlement
 
-Dashboard สามารถผูกสัญญาณกับ License ได้เมื่อครบ 4 ชิ้นนี้
+Dashboard เรียก **Admin API** (`ADMIN_API_BASE` ใน `config.js`) เมื่อครบชิ้นด้านล่าง  
+โมดูลอ้างอิง: `signal-api/signal-entitlement.js` (orphan / mirror) · implementation จริงอยู่ที่ `NexxTrade-EA-Admin-Private`
 
 ## 1. License API
 
@@ -24,27 +25,33 @@ Dashboard สามารถผูกสัญญาณกับ License ได�
 | GET | `/signal/admin/recipients` | admin session |
 | POST | `/signal/webhooks` | admin — ลงทะเบียน URL เมื่อเปิด/ปิดสิทธิ์ |
 
-บอทดึงรายชื่อ `chat_id` ที่ผูกแล้วและยังมีสิทธิ์ หรือฟัง webhook `signal.enabled` / `signal.disabled` / `telegram.bound` / `telegram.unbound`
+`X-Bot-Token` = env `SIGNAL_BOT_TOKEN` (ตั้งบน Admin API เท่านั้น — อย่าใส่ใน README)
 
-`X-Bot-Token` = env `SIGNAL_BOT_TOKEN`
+ถ้ายังไม่ตั้ง token → API ตอบ **503** `bot_token_unset` (ไม่ใช่ 404)
 
 ## 3. ผูก `telegram_chat_id` กับ `client_id`
 
-1. เรียก `POST /signal/start-link` body `{ "userId", "ea" }` ได้ deep link `อายุ 15 นาที`
-2. User เปิด `/start TOKEN` บน Telegram
-3. บอท `POST /signal/telegram/start` `{ start_token, chat_id }` + `X-Bot-Token`
-4. API เขียน `telegramChatId` ลง license ของ `client_id`
+1. เรียก `POST /signal/start-link` body `{ "key", "ea" }` หรือ `{ "userId", "ea" }` ได้ deep link อายุ 15 นาที  
+2. User เปิด `/start TOKEN` บน Telegram  
+3. บอท `POST /signal/telegram/start` `{ start_token, chat_id }` + `X-Bot-Token`  
+4. API เขียน `telegramChatId` ลง license  
 
 ถอดผูก: `POST /signal/telegram/unbind`
 
+ถ้ายังไม่ตั้ง `TELEGRAM_BOT_USERNAME` → start-link ตอบ **503** `telegram_bot_unset` — ปุ่ม UI แสดงข้อความช่วยเหลือ
+
 ## 4. Auth + URL Dashboard
 
-| ค่า | Env |
+| ค่า | Env / config |
 |---|---|
-| Dashboard URL | `DASHBOARD_URL` |
-| Admin bind | `ADMIN_BIND` / `ADMIN_PORT` |
-| Admin hosts | `ADMIN_HOSTS` |
+| Dashboard URL | `DASHBOARD_URL` (Admin API) · UI: `config.js` |
+| Admin API base | `window.ADMIN_API_BASE` → `https://nexttrade-ea-admin-api.vercel.app` |
 | Bot username | `TELEGRAM_BOT_USERNAME` |
 | Bot service token | `SIGNAL_BOT_TOKEN` |
 
 Admin session: `POST /auth/login` แล้ว `Authorization: Bearer`
+
+## 5. Persistence
+
+Vercel Admin API ตอนนี้เก็บ license ในหน่วยความจำ (ephemeral) — ใช้ smoke ได้  
+Production ย้ายไป VPS/DB ตาม `NexxTrade-EA-Admin-Private/docs/SIGNAL_LICENSE.md`
