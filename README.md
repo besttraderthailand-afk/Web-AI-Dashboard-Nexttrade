@@ -22,11 +22,25 @@ GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Da
 | `control-layer.js` | สถานะคีย์ + parse SNAP |
 | `index.html` | หน้าหลักลูกค้า (Web3 connect) |
 | `console.html` | แอดมินคอนโสล (internal; separate admin URL) |
+| `config.js` | `ADMIN_API_BASE` สำหรับ admin console |
 | `ai-chart.html` | TradingView คนละชั้น |
 | `docs/CONTROL_LAYER.md` | สเปกชั้นควบคุม |
 | `docs/SIGNAL_LICENSE.md` | License ↔ Telegram + Subscription |
 
 Admin credentials and bootstrap secrets live in environment / deployment config — not in this README.
+
+## Admin console → Admin API
+
+หน้า `console.html` (Vercel `nexttrade-admin-console`) เรียก API ตามลำดับ:
+
+1. `?api=https://YOUR-API.vercel.app` (บันทึกลง localStorage)
+2. localStorage `admin_api_base`
+3. `window.ADMIN_API_BASE` จาก `config.js` (ค่าเริ่ม: `https://nexttrade-ea-admin-api.vercel.app`)
+4. relative path (เมื่อ API อยู่โดเมนเดียวกัน)
+
+ตั้งค่าในฟอร์มล็อกอินช่อง **API base URL** ได้
+
+อย่าใส่รหัสผ่านจริงใน README / config.js
 
 ## กฎิกาสาธารณะ
 
