@@ -110,12 +110,15 @@
         "ea_id": 8,
         "code": "008",
         "name": "NexxTrade_ICT_SMC_CQ",
-        "version": null,
+        "version": "4.80",
         "category": null,
         "license_required": true,
         "license_price_usdt": 49,
         "included_in_membership": true,
-        "checkout_path": "/pay/ea/008"
+        "checkout_path": "/pay/ea/008",
+        "source_file": "NexxTrade_ICT_SMC_CQ_v4_8_CorrHeatmap.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/NexxTrade_ICT_SMC_CQ_v4_8_CorrHeatmap.mq5"
       },
       {
         "ea_id": 9,
