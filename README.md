@@ -109,4 +109,4 @@ window.WALLETCONNECT_PROJECT_ID = "YOUR_REOWN_PROJECT_ID";
 `personal_sign` เดโมในเมนูระบุชัดว่า **ไม่ใช่ SIWE session** (ยังไม่มี backend nonce)
 
 ### ชำระเงิน
-ปุ่มจ่าย 17 USDT ยังเป็น **จำลอง** จนกว่าจะมี `USDT_PAYMENT_VAULT` ใน config — ห้ามเดาที่อยู่ vault
+ปุ่มจ่าย 20 USDT ยังเป็น **จำลอง** จนกว่าจะมี `USDT_PAYMENT_VAULT` ใน config — ห้ามเดาที่อยู่ vault

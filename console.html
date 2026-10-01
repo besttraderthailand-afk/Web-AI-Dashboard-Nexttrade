@@ -261,6 +261,7 @@ async function loadTab(name) {
   if (name === "pay") {
     const l = await api("GET", "/pay/ledger");
     $("tab-pay").innerHTML = `<div class="card"><h3>เครดิตภายใน</h3>
+      <p class="dim">Admin: company remainder / compensation report อยู่ฝั่ง backend เท่านั้น (ไม่โชว์บนหน้าลูกค้า) · Tier จ่ายทันที — ไม่มี hold รอครบ 100 คน</p>
       <pre>${JSON.stringify(l.data, null, 2)}</pre>
       <div class="row">
         <input id="adjId" value="mem_1002" />
