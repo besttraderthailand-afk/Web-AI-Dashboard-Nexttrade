@@ -12,78 +12,99 @@
         "ea_id": 1,
         "code": "001",
         "name": "AeroBreak_Dashboard",
-        "version": null,
+        "version": "4.28-vSTA",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "AeroBreak_Dashboard_vSTA.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/AeroBreak_Dashboard_vSTA.mq5"
       },
       {
         "ea_id": 2,
         "code": "002",
         "name": "GridPyramid_Recovery_Nex",
-        "version": null,
+        "version": "2.13",
         "category": null,
         "license_required": true,
         "license_price_usdt": 29,
         "included_in_membership": true,
-        "checkout_path": "/pay/ea/002"
+        "checkout_path": "/pay/ea/002",
+        "source_file": "GridPyramid_Recovery_Nex.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/GridPyramid_Recovery_Nex.mq5"
       },
       {
         "ea_id": 3,
         "code": "003",
         "name": "KeyLevel_OneShot",
-        "version": null,
+        "version": "1.13",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "KeyLevel_OneShot_EA_V1_13_Tuned.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/KeyLevel_OneShot_EA_V1_13_Tuned.mq5"
       },
       {
         "ea_id": 4,
         "code": "004",
         "name": "MarketStructure_VP_basket",
-        "version": null,
+        "version": "1.01",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "MarketStructure_VP_basket_stage_Nex.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/MarketStructure_VP_basket_stage_Nex.mq5"
       },
       {
         "ea_id": 5,
         "code": "005",
         "name": "MeanReversionAdaptiveHybrid",
-        "version": null,
+        "version": "1.02",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "MeanReversionAdaptiveHybrid_v1_02_Standalone.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/MeanReversionAdaptiveHybrid_v1_02_Standalone.mq5"
       },
       {
         "ea_id": 6,
         "code": "006",
         "name": "NEWS-01_News_Breakout",
-        "version": null,
+        "version": "1.21",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "NEWS-01_News_Breakout_V1_21_Standalone.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/NEWS-01_News_Breakout_V1_21_Standalone.mq5"
       },
       {
         "ea_id": 7,
         "code": "007",
         "name": "NextTrade_Hybrid_Fib",
-        "version": null,
+        "version": "2.20",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "NextTrade_Hybrid_Fib_V2_2_Standalone.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/NextTrade_Hybrid_Fib_V2_2_Standalone.mq5"
       },
       {
         "ea_id": 8,
@@ -100,23 +121,29 @@
         "ea_id": 9,
         "code": "009",
         "name": "FUND_Institutional_EA_Nex",
-        "version": null,
+        "version": "1.11",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "FUND_Institutional_EA_Nex.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/FUND_Institutional_EA_Nex.mq5"
       },
       {
         "ea_id": 10,
         "code": "010",
         "name": "ScalpingSniperEA_v3",
-        "version": null,
+        "version": "3.01",
         "category": null,
         "license_required": false,
         "license_price_usdt": 0,
         "included_in_membership": true,
-        "checkout_path": null
+        "checkout_path": null,
+        "source_file": "ScalpingSniperEA_v3.mq5",
+        "source_repo": "besttraderthailand-afk/NexxTrade-EA-Admin-Private",
+        "source_path": "mt5/eas/ScalpingSniperEA_v3.mq5"
       }
     ]
   }
