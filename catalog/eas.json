@@ -1,0 +1,123 @@
+{
+  "source": "ea_registry.json",
+  "version": "1.0.0",
+  "magic_scheme": {
+    "format": "EEESSSSS",
+    "description": "First 3 digits = EA_ID (001-999), last 5 digits = sequence managed by system",
+    "example": "00100001 = EA#01 sequence 00001"
+  },
+  "data": {
+    "eas": [
+      {
+        "ea_id": 1,
+        "code": "001",
+        "name": "AeroBreak_Dashboard",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 2,
+        "code": "002",
+        "name": "GridPyramid_Recovery_Nex",
+        "version": null,
+        "category": null,
+        "license_required": true,
+        "license_price_usdt": 29,
+        "included_in_membership": true,
+        "checkout_path": "/pay/ea/002"
+      },
+      {
+        "ea_id": 3,
+        "code": "003",
+        "name": "KeyLevel_OneShot",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 4,
+        "code": "004",
+        "name": "MarketStructure_VP_basket",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 5,
+        "code": "005",
+        "name": "MeanReversionAdaptiveHybrid",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 6,
+        "code": "006",
+        "name": "NEWS-01_News_Breakout",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 7,
+        "code": "007",
+        "name": "NextTrade_Hybrid_Fib",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 8,
+        "code": "008",
+        "name": "NexxTrade_ICT_SMC_CQ",
+        "version": null,
+        "category": null,
+        "license_required": true,
+        "license_price_usdt": 49,
+        "included_in_membership": true,
+        "checkout_path": "/pay/ea/008"
+      },
+      {
+        "ea_id": 9,
+        "code": "009",
+        "name": "FUND_Institutional_EA_Nex",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      },
+      {
+        "ea_id": 10,
+        "code": "010",
+        "name": "ScalpingSniperEA_v3",
+        "version": null,
+        "category": null,
+        "license_required": false,
+        "license_price_usdt": 0,
+        "included_in_membership": true,
+        "checkout_path": null
+      }
+    ]
+  }
+}

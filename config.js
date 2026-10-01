@@ -23,3 +23,9 @@ window.WALLET_EXPLORER = window.WALLET_EXPLORER || "https://bscscan.com";
 
 /* USDT BEP20 payment vault — leave empty = payment stays simulation (do not invent) */
 window.USDT_PAYMENT_VAULT = window.USDT_PAYMENT_VAULT || "";
+
+/* EA catalog — public, no auth.
+ * Live: ADMIN_API_BASE + "/catalog/eas"
+ * Fallback static file (always ship with Pages/Vercel static):
+ */
+window.CATALOG_STATIC_URL = window.CATALOG_STATIC_URL || "./catalog/eas.json";
