@@ -29,3 +29,11 @@
 
 - USDT vault / marketing plan tables (still hidden on customer UI)
 - Inventing API keys or committing secrets
+
+## Customer install guide
+
+คู่มือสั้นสำหรับลูกค้า (สาธารณะบนแดชบอร์ด): [`CUSTOMER_AGENT_INSTALL.md`](./CUSTOMER_AGENT_INSTALL.md)
+
+ชุด Agent เต็ม (private / ใน ZIP): `Nexttrade-AI-Agent` → `docs/CUSTOMER_INSTALL.md`  
+รัน `python -m agent.server` แล้วให้แท็บ `#ai` probe `127.0.0.1:8787`
+

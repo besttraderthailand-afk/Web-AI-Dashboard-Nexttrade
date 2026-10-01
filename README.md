@@ -78,6 +78,7 @@ Admin credentials and bootstrap secrets live in environment / deployment config 
 - คีย์: `.env` บนเครื่องลูกค้า (Nexttrade-AI-Agent) หรือ localStorage แท็บ API Keys (มีคำเตือน ไม่เข้ารหัส)
 - คีย์บริษัท: ปิดเป็นค่าเริ่ม — เปิดได้เฉพาะเมื่อตั้ง `CHAT_ALLOW_SERVER_KEYS=1` + env บน Vercel (อย่า commit คีย์)
 - ไฟล์: `ai-chat.js`, `api/chat.js`, `config.js` (`LOCAL_AGENT_URL`, `CHAT_PROXY_URL`)
+- คู่มือติดตั้ง Local Agent (ลูกค้า): [`docs/CUSTOMER_AGENT_INSTALL.md`](./docs/CUSTOMER_AGENT_INSTALL.md) · ลิงก์จากแท็บ `#ai` / `#keys`
 
 **ยังเป็น mock / ช่องว่าง**
 - ชำระเงิน / Cap / IB ยังจำลองจนกว่ามี `USDT_PAYMENT_VAULT` จริง (อย่าเดาที่อยู่)
