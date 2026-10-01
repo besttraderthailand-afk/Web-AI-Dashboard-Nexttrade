@@ -176,15 +176,14 @@
             <option>Grok</option><option>GPT-4.1</option><option>Claude</option><option>Gemini</option>
           </select>
           <div class="log" id="log">
-            <div class="bubble">บริบทที่ส่งให้อัตโนมัติ: XAUUSD M15 · ข่าว NFP สีแดงใน 2 ชม. · สัญญาณ EA 001 HOLD</div>
-            <div class="bubble me">สรุปโซนเข้าวันนี้ให้หน่อย</div>
-            <div class="bubble">ตัวอย่างคำตอบ: ราคาอยู่เหนือ VWAP ช่วงลอนดอน ข่าวความผันผวนสูง — ยังไม่เข้าตามกติกา News filter ของ EA 006</div>
+            <div class="bubble">แชตจริง: เรียก Local Agent (127.0.0.1:8787) ก่อน · ถ้าไม่พร้อมใช้คีย์ของคุณผ่าน BYOK · ไม่ตอบตัวอย่างปลอม</div>
           </div>
           <div style="display:flex;gap:8px;margin-top:8px;">
             <input id="q" placeholder="ถามเรื่องกราฟหรือข่าว..." />
             <button class="btn" id="ask">ส่ง</button>
           </div>
-          <p class="muted">Cap วันนี้ 12/80 ข้อความ · Soft Cap ยังไม่ชน · แชตนี้ยังเป็นตัวอย่างในเบราว์เซอร์ (ไม่ยิงคีย์ลูกค้า)</p>
+          <p id="chatStatus" class="muted">กำลังตรวจ Local Agent…</p>
+          <p class="muted">คีย์อยู่ที่เครื่องคุณ (.env ของ Agent หรือแท็บ API Keys ในเบราว์เซอร์) · Cap UI ยังเป็นตัวเลขตัวอย่าง</p>
           <p class="muted"><a href="control.html">เปิดชั้นควบคุม</a> — SNAP / Analyze-only / ตรวจรูปทรงคีย์ · เว็บไม่ยิงออเดอร์เอง</p>
         </div>
       </div>
@@ -277,16 +276,21 @@ A  Active<br>
       <div class="grid cols-2">
       <div class="card">
         <h2>API Key ของบัญชีนี้</h2>
-        <p class="muted">เก็บเข้ารหัสฝั่งเซิร์ฟเวอร์ — ตัวอย่างนี้ไม่ส่งออกเน็ต</p>
-        <label>OpenAI</label><input placeholder="sk-..." />
+        <p class="muted" id="keysWarn">คีย์เก็บในเบราว์เซอร์ของคุณเท่านั้น (localStorage) — ไม่ขึ้น GitHub และบริษัทไม่เก็บคีย์ให้</p>
+        <label>OpenAI</label><input id="keyOpenAI" placeholder="sk-..." autocomplete="off" />
         <div style="height:8px"></div>
-        <label>Claude</label><input placeholder="sk-ant-..." />
+        <label>Claude</label><input id="keyClaude" placeholder="sk-ant-..." autocomplete="off" />
         <div style="height:8px"></div>
-        <label>Gemini</label><input placeholder="AIza..." />
+        <label>Gemini</label><input id="keyGemini" placeholder="AIza..." autocomplete="off" />
         <div style="height:8px"></div>
-        <label>Grok</label><input placeholder="xai-..." />
+        <label>Grok</label><input id="keyGrok" placeholder="xai-..." autocomplete="off" />
         <div style="height:12px"></div>
-        <button class="btn">บันทึกตัวอย่าง</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="saveKeysBtn" type="button">บันทึกในเบราว์เซอร์</button>
+          <button class="ghost" id="clearKeysBtn" type="button">ลบคีย์</button>
+        </div>
+        <p id="keysMsg" class="muted"></p>
+        <p class="muted" style="margin-top:8px">แนะนำหลัก: ใส่คีย์ใน <code>.env</code> ของ Nexttrade-AI-Agent บนเครื่องคุณ แล้วเปิด Local Agent ที่ :8787</p>
       </div>
       <div class="card">
         <h2>Soft Cap / Hard Cap</h2>
@@ -310,6 +314,7 @@ A  Active<br>
 <script src="./wallet-connect.js"></script>
 <script src="./wallet-ui.js"></script>
 <script src="./catalog-ui.js"></script>
+<script src="./ai-chat.js"></script>
 <script>
 const pages = document.querySelectorAll(".page");
 const navBtns = document.querySelectorAll("nav.top button");
@@ -323,14 +328,10 @@ navBtns.forEach((b) => b.onclick = () => go(b.dataset.page));
 document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => go(b.dataset.go));
 if (location.hash) go(location.hash.slice(1));
 
-document.getElementById("ask").onclick = () => {
-  const q = document.getElementById("q").value.trim();
-  if (!q) return;
-  const log = document.getElementById("log");
-  log.insertAdjacentHTML("beforeend", `<div class="bubble me">${q}</div><div class="bubble">ตัวอย่าง: ระบบจะส่งกราฟ+ข่าว+สัญญาณเข้าโมเดล ${document.getElementById("model").value} ด้วยคีย์ของคุณ</div>`);
-  document.getElementById("q").value = "";
-  log.scrollTop = log.scrollHeight;
-};
+if (window.NexxAiChat) {
+  window.NexxAiChat.bindChatUi({});
+  window.NexxAiChat.bindKeysUi({});
+}
 document.getElementById("payMem").onclick = () => {
   const vault = String(window.USDT_PAYMENT_VAULT || "").trim();
   const msg = document.getElementById("payMsg");

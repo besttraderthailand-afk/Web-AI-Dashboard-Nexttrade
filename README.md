@@ -73,8 +73,13 @@ Admin credentials and bootstrap secrets live in environment / deployment config 
 - Control AI: [`control.html`](./control.html) ลิงก์จากแถบนำทาง / หน้า AI / Keys / footer
 - License↔signal UI hooks บน `#pay` (เรียก `/license/verify` เมื่อ API มี — ตอนนี้แสดงข้อความรอ backend)
 
+**แชต AI (ต่อสายแล้ว — ไม่ตอบตัวอย่างปลอม)**
+- ลำดับ: Local Agent `http://127.0.0.1:8787/chat` → BYOK `POST /api/chat` ด้วยคีย์ลูกค้าใน header
+- คีย์: `.env` บนเครื่องลูกค้า (Nexttrade-AI-Agent) หรือ localStorage แท็บ API Keys (มีคำเตือน ไม่เข้ารหัส)
+- คีย์บริษัท: ปิดเป็นค่าเริ่ม — เปิดได้เฉพาะเมื่อตั้ง `CHAT_ALLOW_SERVER_KEYS=1` + env บน Vercel (อย่า commit คีย์)
+- ไฟล์: `ai-chat.js`, `api/chat.js`, `config.js` (`LOCAL_AGENT_URL`, `CHAT_PROXY_URL`)
+
 **ยังเป็น mock / ช่องว่าง**
-- AI Chat บน `#ai` ยังตอบตัวอย่างในเบราว์เซอร์ (ยังไม่ยิงคีย์ลูกค้า)
 - ชำระเงิน / Cap / IB ยังจำลองจนกว่ามี `USDT_PAYMENT_VAULT` จริง (อย่าเดาที่อยู่)
 - `POST /license/verify` + Telegram bind ยังไม่มีบน Admin API ชั่วคราว — UI พร้อมแล้ว
 - Repo `gold-trading-news-automation` มีสแกนเนอร์จริง แต่ **ยังไม่มี public HTTP API** และต้องมี secrets — อย่า proxy บน Vercel จนกว่าผู้ใช้ให้คีย์; เว็บใช้วิดเจ็ต TradingView
