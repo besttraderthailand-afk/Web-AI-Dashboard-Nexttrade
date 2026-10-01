@@ -56,6 +56,16 @@
       border:1px solid var(--line);
     }
     .chart svg { width:100%; height:100%; display:block; }
+    .chart.tv { height:360px; padding:0; }
+    #tvInlineHost, #tvCalendarHost, #tvTimelineHost { height:100%; min-height:360px; }
+    #tvCalendarHost, #tvTimelineHost { min-height:420px; height:420px; overflow:hidden; border-radius:10px; }
+    .asset-bar, .tf-bar { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+    .asset-bar button, .tf-bar button {
+      background:var(--chip); color:var(--dim); border:1px solid var(--line);
+      border-radius:999px; padding:4px 10px; cursor:pointer; font:12px inherit;
+    }
+    .asset-bar button.on { color:#111; background:var(--gold); border-color:var(--gold); }
+    .tf-bar button.on { color:var(--txt); border-color:var(--gold); }
     .news-item { padding:10px 0; border-bottom:1px solid var(--line); }
     .tag { font-size:11px; padding:2px 7px; border-radius:999px; background:#3a2410; color:#f0d27a; }
     .tag.red { background:#3a1518; color:#ffb4b8; }
@@ -150,19 +160,15 @@
     <section class="page" id="ai">
       <div class="grid cols-2">
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h2>XAUUSD · M15</h2>
-            <span class="ok">2,384.70 +0.42%</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h2 id="aiChartTitle" style="margin:0">XAUUSD · M15</h2>
+            <div class="tf-bar" id="aiTfBar"></div>
           </div>
-          <div class="chart">
-            <svg viewBox="0 0 640 280" preserveAspectRatio="none">
-              <polyline fill="none" stroke="#d4b03a" stroke-width="2"
-                points="10,180 50,160 90,170 130,120 170,140 210,110 250,125 290,90 330,100 370,80 410,95 450,70 490,88 530,60 570,75 630,50" />
-              <polyline fill="none" stroke="#6ea8ff" stroke-width="1" opacity=".6"
-                points="10,200 80,190 160,195 240,170 320,165 400,150 480,155 560,140 630,130" />
-            </svg>
+          <div class="asset-bar" id="aiAssetBar"></div>
+          <div class="chart tv" id="tvInlineHost">
+            <p class="muted" style="padding:16px">กำลังโหลด TradingView…</p>
           </div>
-          <p class="muted">ตัวอย่างกราฟ — โปรดักชันจะฝัง TradingView widget</p>
+          <p class="muted" id="aiChartMeta">ทอง · OANDA:XAUUSD · <a href="ai-chart.html">เปิดเต็มจอ</a></p>
         </div>
         <div class="card chat">
           <h2>AI Chat · โมเดลของบัญชีนี้</h2>
@@ -187,17 +193,16 @@
       <div class="grid cols-2">
         <div class="card">
           <h2>ปฏิทินเศรษฐกิจ</h2>
-          <div class="news-item"><span class="tag red">สูง</span> 14:30 USD Non-Farm Payrolls</div>
-          <div class="news-item"><span class="tag">กลาง</span> 15:45 EUR ECB Speak</div>
-          <div class="news-item"><span class="tag">ต่ำ</span> 21:00 USD Consumer Credit</div>
+          <p class="muted">TradingView Economic Calendar · กรองสกุลเงินหลัก (มืด)</p>
+          <div id="tvCalendarHost"><p class="muted">เปิดแท็บข่าวเพื่อโหลดปฏิทิน…</p></div>
         </div>
         <div class="card">
-          <h2>ฟีดข่าว</h2>
-          <div class="news-item">ทองปรับขึ้นหลังดอลลาร์อ่อน — แหล่งตัวอย่าง</div>
-          <div class="news-item">น้ำมันรอตัวเลขสต็อกคืนนี้</div>
-          <div class="news-item">โบรกเกอร์ประกาศตารางสวอปวันหยุด</div>
+          <h2>ฟีดข่าว · XAUUSD</h2>
+          <p class="muted">TradingView Timeline (symbol OANDA:XAUUSD)</p>
+          <div id="tvTimelineHost"><p class="muted">เปิดแท็บข่าวเพื่อโหลดฟีด…</p></div>
         </div>
       </div>
+      <p class="muted" style="margin-top:12px">หมายเหตุ: สแกนเนอร์ทองใน repo <code>gold-trading-news-automation</code> (biquote / Forex Factory / RSS) ยังไม่มี HTTP API สาธารณะให้เว็บนี้ยิงตรง — ฝั่งเว็บใช้วิดเจ็ต TradingView จนกว่าจะมี backend <code>/news</code></p>
     </section>
 
     <section class="page" id="pay">
@@ -395,6 +400,8 @@ A  Active<br>
   </main>
   <footer>ตัวอย่างเพื่อตรวจเลย์เอาต์และกติกา · ลูกค้าใช้วอลเล็ตเท่านั้น</footer>
 <script src="./config.js"></script>
+<script src="./chart-assets.js"></script>
+<script src="./dashboard-widgets.js"></script>
 <script src="./wallet-connect.js"></script>
 <script src="./wallet-ui.js"></script>
 <script>
@@ -404,6 +411,7 @@ function go(name) {
   pages.forEach((p) => p.classList.toggle("on", p.id === name));
   navBtns.forEach((b) => b.classList.toggle("on", b.dataset.page === name));
   history.replaceState(null, "", "#" + name);
+  if (window.NexxDashboardWidgets) window.NexxDashboardWidgets.onPage(name);
 }
 navBtns.forEach((b) => b.onclick = () => go(b.dataset.page));
 document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => go(b.dataset.go));
