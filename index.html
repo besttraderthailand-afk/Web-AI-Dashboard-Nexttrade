@@ -19,15 +19,47 @@
     }
     .brand { font-weight:700; letter-spacing:.06em; color:var(--gold); }
     .brand small { display:block; color:var(--dim); font-weight:400; letter-spacing:0; font-size:11px; }
-    nav.top { display:flex; gap:4px; align-items:center; flex-wrap:wrap; }
-    nav.top a, nav.top button {
-      background:transparent; border:0; color:var(--dim); padding:7px 9px; border-radius:8px; cursor:pointer; font:inherit;
-      display:inline-flex; flex-direction:column; align-items:flex-start; line-height:1.15;
-    }
-    nav.top a small, nav.top button small { font-size:10px; color:var(--gold2); letter-spacing:.02em; font-weight:700; }
-    nav.top a.on, nav.top button.on { color:var(--txt); background:var(--chip); }
-    .menu-toggle { display:none; background:var(--chip); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:8px 10px; }
     .spacer { flex:1; }
+    /* Hamburger (top-left) + side drawer — no visible grid of menu labels */
+    .menu-toggle {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:42px; height:42px; padding:0; flex-shrink:0;
+      background:var(--chip); color:var(--txt); border:1px solid var(--line);
+      border-radius:10px; cursor:pointer;
+    }
+    .menu-toggle:hover { border-color:var(--gold); }
+    .menu-toggle .burger {
+      display:block; width:18px; height:2px; background:var(--txt); border-radius:1px;
+      box-shadow:0 -6px 0 var(--txt), 0 6px 0 var(--txt);
+    }
+    .menu-backdrop {
+      display:none; position:fixed; inset:0; z-index:40; background:#0008;
+    }
+    .menu-backdrop.open { display:block; }
+    nav.drawer {
+      position:fixed; top:0; left:0; z-index:50; height:100%; width:min(300px, 86vw);
+      background:#0c121e; border-right:1px solid var(--line);
+      padding:18px 14px; display:flex; flex-direction:column; gap:4px;
+      transform:translateX(-105%); transition:transform .22s ease;
+      box-shadow:8px 0 32px #000a; overflow:auto;
+      pointer-events:none; visibility:hidden;
+    }
+    nav.drawer.open { transform:translateX(0); pointer-events:auto; visibility:visible; }
+    nav.drawer .drawer-head {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--line);
+    }
+    nav.drawer .drawer-head strong { color:var(--gold); letter-spacing:.04em; }
+    .drawer-close {
+      background:transparent; border:1px solid var(--line); color:var(--dim);
+      border-radius:8px; width:36px; height:36px; cursor:pointer; font-size:18px; line-height:1;
+    }
+    nav.drawer a, nav.drawer button {
+      background:transparent; border:0; color:var(--dim); padding:12px 12px; border-radius:10px;
+      cursor:pointer; font:inherit; text-align:left; width:100%;
+    }
+    nav.drawer a.on, nav.drawer button.on { color:var(--txt); background:var(--chip); }
+    nav.drawer a:hover, nav.drawer button:hover { color:var(--txt); background:#152033; }
     .pill { border:1px solid var(--line); border-radius:999px; padding:6px 10px; color:var(--dim); font-size:12px; }
     main { max-width:1240px; margin:0 auto; padding:18px; }
     .grid { display:grid; gap:14px; }
@@ -60,6 +92,10 @@
       border:1px solid var(--line);
     }
     .chart svg { width:100%; height:100%; display:block; }
+    .chart.tv { height:360px; padding:0; }
+    .asset-bar, .tf-bar { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
+    .asset-bar button, .tf-bar button { background:var(--chip); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; font:inherit; }
+    .asset-bar button.on, .tf-bar button.on { border-color:var(--gold); color:var(--gold2); }
     .news-item { padding:10px 0; border-bottom:1px solid var(--line); }
     .tag { font-size:11px; padding:2px 7px; border-radius:999px; background:#3a2410; color:#f0d27a; }
     .tag.red { background:#3a1518; color:#ffb4b8; }
@@ -79,42 +115,71 @@
     .mode-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 12px; }
     button.btn:disabled, button.ghost:disabled { opacity:.4; cursor:not-allowed; }
     footer { text-align:center; color:var(--dim); padding:24px; font-size:12px; }
+
+    .auth-wrap { position:relative; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .auth-panel {
+      display:none; position:absolute; right:0; top:calc(100% + 8px); z-index:30;
+      width:min(320px, 92vw); background:var(--panel); border:1px solid var(--line);
+      border-radius:12px; padding:12px; box-shadow:0 12px 40px #0008;
+    }
+    .auth-panel.open { display:block; }
+    .auth-panel .hint { font-size:12px; color:var(--dim); margin:8px 0 4px; line-height:1.4; }
+    .auth-panel .err { font-size:12px; color:var(--bad); margin-top:8px; }
+    .pill.ok-chain { border-color:#2a5a40; color:var(--ok); }
+    .pill.warn-chain { border-color:#5c4318; color:var(--gold2); }
+    .claim-wallet { margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
     @media (max-width:900px) {
       .hero, .cols-2, .cols-3 { grid-template-columns:1fr; }
-      header.top { flex-wrap:wrap; }
-      .menu-toggle { display:inline-block; }
-      nav.top { display:none; width:100%; order:5; }
-      nav.top.open { display:flex; }
+      header.top { gap:10px; padding:10px 12px; }
+      .brand small { display:none; }
+      .auth-wrap .pill { max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      #btnGoogleLogin { padding:8px 10px; font-size:12px; }
     }
   </style>
 </head>
 <body>
   <header class="top">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="siteMenu">
+      <span class="burger" aria-hidden="true"></span>
+    </button>
     <div class="brand">NEXXTRADE<small>เว็บตัวอย่างทั้งระบบ · ยังไม่ใช่โปรดักชัน</small></div>
-    <button class="menu-toggle" id="menuToggle" type="button">เมนู</button>
-    <nav class="top" id="siteMenu" aria-label="เมนูซับโดเมน">
-      <button class="on" data-page="home"><small>app.</small>ฮับ</button>
-      <button data-page="ai"><small>ai.</small>กราฟ + แชต</button>
-      <button data-page="control"><small>ai.</small>ควบคุม</button>
-      <button data-page="news"><small>news.</small>ข่าว</button>
-      <button data-page="pay"><small>pay.</small>ชำระเงิน</button>
-      <button data-page="aff"><small>go.</small>Affiliate</button>
-      <button data-page="tree"><small>app.</small>ผังสมาชิก</button>
-      <button data-page="keys"><small>app.</small>API Keys</button>
-    </nav>
     <div class="spacer"></div>
-    <span class="pill" id="who">ยังไม่เชื่อมวอลเล็ต</span>
-    <button class="ghost" id="connect">เชื่อมวอลเล็ต</button>
+    <div class="auth-wrap">
+      <span class="pill" id="who">ยังไม่เข้าสู่ระบบ</span>
+      <button class="btn" id="btnGoogleLogin" type="button">เข้าสู่ระบบ Google</button>
+      <button class="ghost" id="btnGoogleLogout" type="button" style="display:none">ออกจากระบบ</button>
+      <div class="auth-panel" id="authPanel" role="dialog" aria-label="เข้าสู่ระบบ Google">
+        <div id="gsiButton"></div>
+        <p class="hint" id="googleAuthHint"></p>
+        <p class="err" id="googleAuthErr"></p>
+      </div>
+    </div>
   </header>
+
+  <div class="menu-backdrop" id="menuBackdrop"></div>
+  <nav class="drawer" id="siteMenu" aria-label="เมนูหลัก">
+    <div class="drawer-head">
+      <strong>เมนู</strong>
+      <button type="button" class="drawer-close" id="menuClose" aria-label="ปิดเมนู">×</button>
+    </div>
+    <button class="on" data-page="home" type="button">ฮับ</button>
+    <button data-page="ai" type="button">กราฟ + แชต</button>
+    <button data-page="control" type="button">ควบคุม</button>
+    <button data-page="news" type="button">ข่าว</button>
+    <button data-page="pay" type="button">ชำระเงิน</button>
+    <button data-page="aff" type="button">Affiliate</button>
+    <button data-page="tree" type="button">ผังสมาชิก</button>
+    <button data-page="keys" type="button">API Keys</button>
+  </nav>
 
   <main>
     <section class="page on" id="home">
       <div class="hero">
         <div>
           <h1>แพลตฟอร์มสัญญาณ + ข่าว + AI + สมาชิกภาพ</h1>
-          <p>ตัวอย่างหน้าตาทั้งระบบตามสถาปัตยกรรม v1.1 — ลูกค้าอยู่คนละโลกกับแอดมิน วอลเล็ตใช้จ่ายเงิน Google + API key ใช้คุย AI</p>
+          <p>ตัวอย่างหน้าตาทั้งระบบตามสถาปัตยกรรม v1.1 — ลูกค้าอยู่คนละโลกกับแอดมิน · เข้าสู่ระบบด้วย Google · จ่ายแพ็กด้วยเลขบิล/QR · วอลเล็ตถามตอน Claim เท่านั้น · API key ใช้คุย AI</p>
           <p class="price">20 USDT</p>
-          <p class="muted">แพ็ก 20 · Tier 15-10-5 จ่ายทันที · Uni 21% · Pool 12% ตามแรงก์รายเดือน · Leadership 8% เมื่อปลดขั้น</p>
+          <p class="muted">แพ็กเกจสมาชิก 20 USDT · ล็อกอิน Google · เข้าผังเมื่อบิลผ่าน</p>
           <button class="btn" data-go="pay">สมัครแพ็กเกจ</button>
           <button class="ghost" data-go="ai">ดูแดชบอร์ด AI</button>
         </div>
@@ -132,26 +197,22 @@
       <div class="grid cols-3">
         <div class="card"><h2>สัญญาณ Multi-EA</h2><p>Magic EEESSSSS · registry 001–008 · บางตัวต้องซื้อไลเซนส์</p></div>
         <div class="card"><h2>AI ของลูกค้า</h2><p>ใส่คีย์ OpenAI / Claude / Gemini / Grok เอง มี Soft/Hard Cap กันบอท</p></div>
-        <div class="card"><h2>Web3 Claim</h2><p>รับ 20 USDT เข้าบิล QR · เครดิตในเว็บ · เครดิตในเว็บ · ถอนเองเมื่อครบ 10 USDT</p></div>
+        <div class="card"><h2>สมาชิกภาพ</h2><p>ล็อกอิน Google ได้ทุกคน · เข้าผังเมื่อบิล 20 USDT ผ่าน · Claim ถอนเมื่อครบ 10 USDT (ถามวอลเล็ตตอนถอน)</p></div>
       </div>
     </section>
 
     <section class="page" id="ai">
       <div class="grid cols-2">
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h2>XAUUSD · M15</h2>
-            <span class="ok">2,384.70 +0.42%</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h2 id="aiChartTitle" style="margin:0">XAUUSD · M15</h2>
+            <div class="tf-bar" id="aiTfBar"></div>
           </div>
-          <div class="chart">
-            <svg viewBox="0 0 640 280" preserveAspectRatio="none">
-              <polyline fill="none" stroke="#d4b03a" stroke-width="2"
-                points="10,180 50,160 90,170 130,120 170,140 210,110 250,125 290,90 330,100 370,80 410,95 450,70 490,88 530,60 570,75 630,50" />
-              <polyline fill="none" stroke="#6ea8ff" stroke-width="1" opacity=".6"
-                points="10,200 80,190 160,195 240,170 320,165 400,150 480,155 560,140 630,130" />
-            </svg>
+          <div class="asset-bar" id="aiAssetBar"></div>
+          <div class="chart tv" id="tvInlineHost">
+            <p class="muted" style="padding:16px">กำลังโหลด TradingView…</p>
           </div>
-          <p class="muted">ตัวอย่างกราฟ — โปรดักชันจะฝัง TradingView widget</p>
+          <p class="muted" id="aiChartMeta">ทอง · OANDA:XAUUSD · <a href="ai-chart.html">เปิดเต็มจอ</a></p>
         </div>
         <div class="card chat">
           <h2>AI Chat · โมเดลของบัญชีนี้</h2>
@@ -159,29 +220,16 @@
             <option>Grok</option><option>GPT-4.1</option><option>Claude</option><option>Gemini</option>
           </select>
           <div class="log" id="log">
-            <div class="bubble">บริบทที่ส่งให้อัตโนมัติ: XAUUSD M15 · ข่าว NFP สีแดงใน 2 ชม. · สัญญาณ EA 001 HOLD</div>
-            <div class="bubble me">สรุปโซนเข้าวันนี้ให้หน่อย</div>
-            <div class="bubble">ตัวอย่างคำตอบ: ราคาอยู่เหนือ VWAP ช่วงลอนดอน ข่าวความผันผวนสูง — ยังไม่เข้าตามกติกา News filter ของ EA 006</div>
+            <div class="bubble">แชตจริง: เรียก Local Agent (127.0.0.1:8787) ก่อน · ถ้าไม่พร้อมใช้คีย์ของคุณผ่าน BYOK · ไม่ตอบตัวอย่างปลอม</div>
           </div>
           <div style="display:flex;gap:8px;margin-top:8px;">
             <input id="q" placeholder="ถามเรื่องกราฟหรือข่าว..." />
             <button class="btn" id="ask">ส่ง</button>
           </div>
-          <p class="muted">Cap วันนี้ 12/80 ข้อความ · Soft Cap ยังไม่ชน</p>
-        </div>
-      </div>
-      <div class="grid cols-3" style="margin-top:14px">
-        <div class="card snap-cell"><b>BIAS</b><span id="aiBias">—</span></div>
-        <div class="card snap-cell"><b>SESSION</b><span id="aiSession">—</span></div>
-        <div class="card snap-cell"><b>RISK</b><span id="aiRisk">—</span></div>
-      </div>
-      <div class="card" style="margin-top:14px">
-        <h3>SNAP</h3>
-        <p id="aiSetup" class="muted">ยังไม่มี SNAP — ไปหน้าควบคุมแล้วแปะ 6 บรรทัด</p>
-        <div class="mode-bar">
-          <label><input type="checkbox" id="aiAnalyzeOnly" checked /> Analyze only (ค่าเริ่ม)</label>
-          <button class="btn" id="aiTradeBtn" disabled>เทรด — ล็อก</button>
-          <span class="muted" id="aiModeHint">ชั้นควบคุมแยกจากชาร์ต · ยังไม่ยิงออเดอร์</span>
+          <p id="chatStatus" class="muted">กำลังตรวจ Local Agent…</p>
+          <p class="muted">คีย์อยู่ที่เครื่องคุณ (.env ของ Agent หรือแท็บ API Keys ในเบราว์เซอร์) · Cap UI ยังเป็นตัวเลขตัวอย่าง</p>
+          <p class="muted"><a href="docs/CUSTOMER_AGENT_INSTALL.md">คู่มือติดตั้ง Local Agent</a> — รัน <code>python -m agent.server</code> ที่เครื่องคุณ (:8787) แล้วรีเฟรชแท็บนี้</p>
+          <p class="muted"><a href="control.html">เปิดชั้นควบคุม</a> — SNAP / Analyze-only / ตรวจรูปทรงคีย์ · เว็บไม่ยิงออเดอร์เอง</p>
         </div>
       </div>
     </section>
@@ -224,17 +272,16 @@ SETUP: FVG + OB sweep"></textarea>
       <div class="grid cols-2">
         <div class="card">
           <h2>ปฏิทินเศรษฐกิจ</h2>
-          <div class="news-item"><span class="tag red">สูง</span> 14:30 USD Non-Farm Payrolls</div>
-          <div class="news-item"><span class="tag">กลาง</span> 15:45 EUR ECB Speak</div>
-          <div class="news-item"><span class="tag">ต่ำ</span> 21:00 USD Consumer Credit</div>
+          <p class="muted">TradingView Economic Calendar · กรองสกุลเงินหลัก (มืด)</p>
+          <div id="tvCalendarHost"><p class="muted">เปิดแท็บข่าวเพื่อโหลดปฏิทิน…</p></div>
         </div>
         <div class="card">
-          <h2>ฟีดข่าว</h2>
-          <div class="news-item">ทองปรับขึ้นหลังดอลลาร์อ่อน — แหล่งตัวอย่าง</div>
-          <div class="news-item">น้ำมันรอตัวเลขสต็อกคืนนี้</div>
-          <div class="news-item">โบรกเกอร์ประกาศตารางสวอปวันหยุด</div>
+          <h2>ฟีดข่าว · XAUUSD</h2>
+          <p class="muted">TradingView Timeline (symbol OANDA:XAUUSD)</p>
+          <div id="tvTimelineHost"><p class="muted">เปิดแท็บข่าวเพื่อโหลดฟีด…</p></div>
         </div>
       </div>
+      <p class="muted" style="margin-top:12px">หมายเหตุ: สแกนเนอร์ทองใน repo <code>gold-trading-news-automation</code> (biquote / Forex Factory / RSS) ยังไม่มี HTTP API สาธารณะให้เว็บนี้ยิงตรง — ฝั่งเว็บใช้วิดเจ็ต TradingView จนกว่าจะมี backend <code>/news</code></p>
     </section>
 
     <section class="page" id="pay">
@@ -242,7 +289,7 @@ SETUP: FVG + OB sweep"></textarea>
         <div class="card">
           <h2>แพ็กเกจสมาชิก</h2>
           <p class="price" style="font-size:32px;">20 USDT</p>
-          <p>โอนจำนวนเต็ม ไม่ใช้จุดทศนิยมจับยอด ระบบจับด้วยเลขบิลที่สุ่มแล้วผูกกับ QR ของบิลนั้น</p>
+          <p>โอนจำนวนเต็ม (integer) ระบบจับด้วยเลขบิลที่สุ่มแล้วผูกกับ QR ของบิลนั้น — ไม่ใช้จุดทศนิยมจับยอด และไม่ใช้ที่อยู่ vault รวม</p>
           <div style="display:flex;gap:14px;align-items:center;margin:12px 0;">
             <svg width="112" height="112" viewBox="0 0 112 112" aria-label="QR บิล">
               <rect width="112" height="112" fill="#fff"/>
@@ -263,113 +310,26 @@ SETUP: FVG + OB sweep"></textarea>
               <div class="muted">หมดอายุ 30 นาที แล้วออกเลขบิลใหม่</div>
             </div>
           </div>
-          <table>
-            <tr><td>Tier 1–3</td><td>15% + 10% + 5% เฉพาะแพ็ก จ่ายทันที</td><td>6.00</td></tr>
-            <tr><td>Unilevel 10 ชั้น</td><td>21% ของแพ็ก</td><td>4.20</td></tr>
-            <tr><td>Pool</td><td>12% จ่ายถังแรงก์ที่ยอดเดือนนี้ถึง</td><td>2.40</td></tr>
-            <tr><td>Leadership</td><td>8% เฉพาะบิลที่ปลดขั้น</td><td>1.60</td></tr>
-            <tr><td>บริษัท</td><td>ที่เหลือ 29% ถ้าจ่ายครบ / 37% ถ้ายังไม่ปลด Leadership</td><td>5.80 / 7.40</td></tr>
-          </table>
-          <p class="muted">ช่องทางอื่น (พร้อมเพย์ / บัตร / เครดิตในระบบ) ผูกเพิ่มบนหน้านี้ได้ เลขบิลคนละชุด แต่เข้าบัญชี Google เดียวกัน</p>
+          <p class="muted">ต้องเข้าสู่ระบบ Google ก่อน · ช่องทางอื่น (พร้อมเพย์ / บัตร / เครดิต) ผูกเพิ่มได้ เลขบิลคนละชุด แต่บัญชี Google เดียวกัน</p>
+          <p class="muted">กติกาคอมเพนเสชันเป็นเอกสารภายในแอดมิน — หน้าลูกค้าไม่แสดงตาราง Tier/Unilevel/Pool</p>
           <button class="btn" id="payMem">จำลองว่าเจอ tx ของบิลนี้</button>
           <p id="payMsg" class="ok"></p>
         </div>
         <div class="card">
           <h2>ไลเซนส์ EA ที่ต้องซื้อแยก</h2>
           <div id="licList">กำลังโหลดแคตตาล็อก...</div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:14px 0" />
+          <h3 style="margin:0 0 8px;font-size:15px">ตรวจสิทธิ์ License ↔ สัญญาณ</h3>
+          <p class="muted">ใส่คีย์จากแอดมิน · เรียก <code>/license/verify</code> เมื่อ API พร้อม</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+            <input id="sigKey" placeholder="NT-XXXX-…" style="flex:1;min-width:160px;background:#0b1220;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px" autocomplete="off" />
+            <select id="sigEa" style="background:#0b1220;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px;min-width:140px"></select>
+            <button class="ghost" id="sigVerify" type="button">ตรวจสิทธิ์</button>
+            <button class="ghost" id="sigBindTg" type="button" disabled>ผูก Telegram</button>
+          </div>
+          <div id="sigEntitlement"></div>
+          <p id="sigMsg" class="muted"></p>
         </div>
-      </div>
-      <div class="grid cols-2" style="margin-top:14px">
-        <div class="card">
-          <h2>Tier 15-10-5 เฉพาะแพ็ก</h2>
-          <p class="muted">จ่ายทันทีทุกรอบที่ซื้อแพ็ก รวมซื้อซ้ำ Cap และเช่า EA/AI ไม่จ่าย Tier แต่ยังจ่าย Unilevel Pool Leadership</p>
-          <table>
-            <tr><th>ชั้น</th><th>%</th><th>ต่อแพ็ก 20</th></tr>
-            <tr><td>Tier 1</td><td>15%</td><td>3.00</td></tr>
-            <tr><td>Tier 2</td><td>10%</td><td>2.00</td></tr>
-            <tr><td>Tier 3</td><td>5%</td><td>1.00</td></tr>
-          </table>
-        </div>
-        <div class="card">
-          <h2>Pool 5 ตำแหน่ง เฉพาะถังตัวเอง</h2>
-          <p class="muted">Pool 12% จากแพ็ก+บริการ จ่ายเฉพาะถังแรงก์ที่เดือนนี้ถึง ไม่บวกถังที่ต่ำกว่า Diamond ไม่ได้ Bronze Silver Gold ซ้ำ หล่นมา Gold ได้เฉพาะถัง Gold</p>
-          <table>
-            <tr><th>ตำแหน่ง</th><th>สัดส่วนถัง</th><th>ตัวอย่าง</th></tr>
-            <tr><td>Bronze</td><td>200</td><td>ถัง 10% เท่านั้น</td></tr>
-            <tr><td>Silver</td><td>1,000</td><td>ถัง 15% เท่านั้น</td></tr>
-            <tr><td>Gold</td><td>5,000</td><td>ถัง 20% เท่านั้น</td></tr>
-            <tr><td>Diamond</td><td>20,000</td><td>ถัง 25% เท่านั้น ไม่บวกถังล่าง</td></tr>
-            <tr><td>Legend</td><td>80,000</td><td>ถัง 30% เท่านั้น</td></tr>
-          </table>
-          <p class="muted">Leadership 8% ปลดเมื่อแพ็กใต้สาย 10 ชั้นถึง 200 แล้ว ×2 (400, 800, 1,600 …) จ่ายเฉพาะบิลที่ข้ามขั้น</p>
-        </div>
-      </div>
-      <div class="card" style="margin-top:14px">
-        <h2>ยอดสะสมรายเดือน</h2>
-        <p class="muted">ตัวอย่าง 3 เดือน · แพ็ก 20$ + สมมุติมีซื้อ Cap · Tier คิดจากจำนวนยูสเซอร์ปลายเดือน</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px">
-          <label>แพ็กเดือนนี้ <input id="mPkg" type="number" min="0" value="100" style="width:110px" /></label>
-          <label>ซื้อ Cap USDT <input id="mCap" type="number" min="0" value="100" style="width:110px" /></label>
-          <label>ยูสเซอร์ 3 ชั้น <input id="mUsers" type="number" min="0" value="100" style="width:110px" /></label>
-          <button class="ghost" id="mCalc">คำนวณเดือนนี้</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>เดือน</th>
-              <th>รับรวม</th>
-              <th>บริษัท</th>
-              <th>Unilevel 21%</th>
-              <th>Pool 12%</th>
-              <th>Leadership</th>
-              <th>Tier 30%</th>
-              <th>หมายเหตุ</th>
-            </tr>
-          </thead>
-          <tbody id="monthBody">
-            <tr>
-              <td>เดือน 1 · 80 แพ็ก · 80 คน</td>
-              <td>1,600</td>
-              <td>464.00</td>
-              <td>336.00</td>
-              <td>192.00</td>
-              <td>0 (ยังไม่ถึง 200)</td>
-              <td>480.00</td>
-              <td>บริษัท 29% ถ้าปลด Lead</td>
-            </tr>
-            <tr>
-              <td>เดือน 2 · 100 แพ็ก · 100 คน</td>
-              <td>2,000</td>
-              <td>580.00</td>
-              <td>420.00</td>
-              <td>240.00</td>
-              <td>32.00 (ข้าม 200/400)</td>
-              <td>600.00</td>
-              <td>Lead จ่ายเฉพาะบิลที่ปลด</td>
-            </tr>
-            <tr>
-              <td>เดือน 3 · 300 แพ็ก · 300 คน</td>
-              <td>6,000</td>
-              <td>1,740.00</td>
-              <td>1,260.00</td>
-              <td>720.00</td>
-              <td>ตามขั้นที่ข้าม</td>
-              <td>1,800.00</td>
-              <td>Tier 30% ทุกรอบแพ็ก</td>
-            </tr>
-            <tr>
-              <td><b>สะสม 3 เดือน</b></td>
-              <td><b>9,600</b></td>
-              <td><b>2,784.00</b></td>
-              <td><b>2,016.00</b></td>
-              <td><b>1,152.00</b></td>
-              <td><b>ตามขั้น</b></td>
-              <td><b>2,880.00</b></td>
-              <td><b>บริษัทเหลือหลัง Tier+Uni+Pool</b></td>
-            </tr>
-          </tbody>
-        </table>
-        <p id="mLive" class="muted"></p>
       </div>
     </section>
 
@@ -418,7 +378,7 @@ SETUP: FVG + OB sweep"></textarea>
               <tr><td>จ่ายเมื่อ</td><td>โหนดชั้นนั้น Active ไม่งั้น roll-up ชั่วคราว</td></tr>
               <tr><td>เครดิต</td><td id="creditBal">0.00 USDT</td></tr>
             </table>
-            <p class="muted">กระเป๋าเครดิตในเว็บ ขั้นต่ำถอน 10 USDT ต้องผ่าน KYC เดิมก่อน</p>
+            <p class="muted">กระเป๋าเครดิตในเว็บ · ขั้นต่ำถอน 10 USDT · ต้องผ่าน KYC เดิม · วอลเล็ตถามตอนถอนเข้าคริปโตเท่านั้น (ไม่ใช่ปุ่มล็อกอินหลัก)</p>
             <p>ยอดกระเป๋า <b id="walletBal">12.50 USDT</b></p>
             <p id="kycState" class="warn">KYC เดิม: ยังไม่ผ่าน</p>
             <button class="ghost" id="kycBtn" type="button">ใช้ผล KYC เดิม</button>
@@ -435,6 +395,22 @@ SETUP: FVG + OB sweep"></textarea>
             <button class="btn" id="claimBtn" type="button">ดูรายละเอียดแล้วถอน</button>
             <div id="claimDetail" class="muted" style="margin-top:8px"></div>
             <p id="claimMsg" class="ok"></p>
+            <div class="claim-wallet">
+              <h3>วอลเล็ตสำหรับถอน (รอง)</h3>
+              <p class="muted">Web3 ไม่ใช่ทางเข้าหลัก — ใช้ตอน Claim เข้าวอลเล็ตเท่านั้น</p>
+              <div class="auth-wrap">
+                <span class="pill" id="walletWho">ยังไม่เชื่อมวอลเล็ตถอน</span>
+                <button class="ghost" id="connect" type="button">เชื่อมวอลเล็ตถอน</button>
+                <div class="auth-panel" id="walletMenu" role="dialog" aria-label="วอลเล็ตถอน">
+                  <button type="button" id="btnInjected" class="ghost" style="width:100%;margin:4px 0">MetaMask / Injected (BSC)</button>
+                  <button type="button" id="btnWc" class="ghost" style="width:100%;margin:4px 0">WalletConnect</button>
+                  <p class="hint" id="wcHint"></p>
+                  <button type="button" id="btnSiweDemo" class="ghost" style="display:none;width:100%">personal_sign เดโม</button>
+                  <button type="button" id="btnDisconnect" class="ghost" style="display:none;width:100%">ตัดการเชื่อมต่อ</button>
+                  <p class="err" id="walletErr"></p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -459,51 +435,49 @@ SETUP: FVG + OB sweep"></textarea>
           <input id="capAmt" type="number" min="5" step="1" value="5" />
           <button class="btn" id="buyCap">ซื้อ Cap</button>
         </div>
-        <table>
-          <tr><td>5 USDT</td><td>Unilevel 21%</td><td>1.05</td></tr>
-          <tr><td></td><td>Pool 12%</td><td>0.60</td></tr>
-          <tr><td></td><td>Leadership 8% เมื่อปลดขั้น</td><td>0.40 หรือ 0</td></tr>
-          <tr><td></td><td>Tier</td><td>ไม่จ่าย</td></tr>
-          <tr><td></td><td>บริษัทที่เหลือ</td><td>3.35 / 2.95</td></tr>
-        </table>
+        <p class="muted">ซื้อ Cap ขั้นต่ำ 5 USDT (integer) · รายละเอียดคอมเพนเสชันอยู่ฝั่งแอดมิน</p>
         <p id="capMsg" class="ok"></p>
       </div>
       </div>
     </section>
   </main>
-  <footer>ตัวอย่างเพื่อตรวจเลย์เอาต์และกติกา · Admin อยู่ที่ console.html · ชั้นควบคุมแยกจากชาร์ต</footer>
-<script src="control-layer.js"></script>
+  <footer>ลูกค้า: Google login · เมนูแฮมเบอร์เกอร์ · Admin คนละโฮสต์ (ไม่ขึ้นเมนู) · ดู docs/CUSTOMER_HOSTS.md</footer>
+<script src="./config.js"></script>
+<script src="./site-menu.js"></script>
+<script src="./google-auth.js"></script>
+<script src="./auth-ui.js"></script>
+<script src="./chart-assets.js"></script>
+<script src="./dashboard-widgets.js"></script>
+<script src="./wallet-connect.js"></script>
+<script src="./wallet-ui.js"></script>
+<script src="./catalog-ui.js"></script>
+<script src="./ai-chat.js"></script>
+<script src="./control-layer.js"></script>
 <script>
-const pages = document.querySelectorAll(".page");
-const navBtns = document.querySelectorAll("nav.top button");
+/* Nav + Google primary handled by site-menu.js / auth-ui.js */
 function go(name) {
-  pages.forEach((p) => p.classList.toggle("on", p.id === name));
-  navBtns.forEach((b) => b.classList.toggle("on", b.dataset.page === name));
-  history.replaceState(null, "", "#" + name);
+  if (window.NexxSiteMenu) window.NexxSiteMenu.navigate(name);
 }
-navBtns.forEach((b) => b.onclick = () => { go(b.dataset.page); document.getElementById("siteMenu").classList.remove("open"); });
-document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => go(b.dataset.go));
-document.getElementById("menuToggle").onclick = () => document.getElementById("siteMenu").classList.toggle("open");
-document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => go(b.dataset.go));
-if (location.hash) go(location.hash.slice(1));
-
-document.getElementById("connect").onclick = () => {
-  document.getElementById("who").textContent = "0xABC…EF12 · SIWE จำลอง";
-};
-document.getElementById("ask").onclick = () => {
-  const q = document.getElementById("q").value.trim();
-  if (!q) return;
-  const log = document.getElementById("log");
-  log.insertAdjacentHTML("beforeend", `<div class="bubble me">${q}</div><div class="bubble">ตัวอย่าง: ระบบจะส่งกราฟ+ข่าว+สัญญาณเข้าโมเดล ${document.getElementById("model").value} ด้วยคีย์ของคุณ</div>`);
-  document.getElementById("q").value = "";
-  log.scrollTop = log.scrollHeight;
-};
+document.getElementById("btnGoogleLogin") && document.getElementById("btnGoogleLogin").addEventListener("click", function () {
+  var p = document.getElementById("authPanel");
+  if (p) p.classList.toggle("open");
+});
+document.addEventListener("click", function (ev) {
+  var p = document.getElementById("authPanel");
+  var wrap = ev.target.closest && ev.target.closest(".auth-wrap");
+  if (p && !wrap) p.classList.remove("open");
+});
+/* AI Chat: ai-chat.js */
 let paid = false;
 function unlockTree() {
   paid = true;
   document.getElementById("treeLocked").style.display = "none";
   document.getElementById("treeOpen").style.display = "block";
-  document.getElementById("who").textContent = "Google · อยู่ในผัง";
+  (function () {
+    var u = window.NexxGoogleAuth && window.NexxGoogleAuth.getUser && window.NexxGoogleAuth.getUser();
+    var who = document.getElementById("who");
+    if (who) who.textContent = u ? ("Google · อยู่ในผัง · " + (u.email || u.name)) : "Google · อยู่ในผัง";
+  })();
 }
 document.getElementById("payMem").onclick = () => {
   document.getElementById("payMsg").textContent = "เจอบิล NX-7K4Q2M · 20 USDT · วางในผังใต้สปอนเซอร์ของลิงก์ go. · Active";
@@ -551,27 +525,6 @@ document.getElementById("saveIb").onclick = () => {
   if (!u) return;
   document.getElementById("ibList").insertAdjacentHTML("beforeend", `<li>${u}</li>`);
 };
-function money2(n) { return Number(n).toFixed(2); }
-document.getElementById("mCalc").onclick = () => {
-  const pkg = Number(document.getElementById("mPkg").value) || 0;
-  const cap = Number(document.getElementById("mCap").value) || 0;
-  const users = Number(document.getElementById("mUsers").value) || 0;
-  const pack = pkg * 20;
-  const tier = pack * 0.30;
-  const uni = (pack + cap) * 0.21;
-  const pool = (pack + cap) * 0.12;
-  const lead = 0;
-  const company = (pack + cap) - tier - uni - pool - lead;
-  const gross = pack + cap;
-  document.getElementById("mLive").textContent =
-    "เดือนนี้รับ " + money2(gross) +
-    " · บริษัท " + money2(company) +
-    " · Unilevel " + money2(uni) +
-    " · Pool " + money2(pool) +
-    " · Leadership " + money2(lead) +
-    " · Tier " + money2(tier) + " (เฉพาะแพ็ก) · Cap/EA จ่าย Uni Pool Lead ไม่จ่าย Tier" +
-    " · สำรอง " + money2(reserve);
-};
 document.getElementById("buyCap").onclick = () => {
   const n = Number(document.getElementById("capAmt").value);
   const msg = document.getElementById("capMsg");
@@ -580,10 +533,8 @@ document.getElementById("buyCap").onclick = () => {
     msg.textContent = "ขั้นต่ำ 5 USDT";
     return;
   }
-  const company = (n * 0.3).toFixed(2);
-  const market = (n * 0.7).toFixed(2);
   msg.className = "ok";
-  msg.textContent = "จำลองซื้อ Cap " + n + " USDT · บริษัท " + company + " · การตลาด " + market + " · ปลด Soft/Hard Cap ตามสัดส่วน";
+  msg.textContent = "จำลองซื้อ Cap " + n + " USDT · ปลด Soft/Hard Cap ตามสัดส่วน (รายละเอียดคอมเพนเสชันฝั่งแอดมิน)";
 };
 
 (function bootControl() {
@@ -731,17 +682,7 @@ document.getElementById("buyCap").onclick = () => {
   refresh();
 })();
 
-fetch("/catalog/eas").then((r) => r.json()).then((j) => {
-  const eas = (j.data && j.data.eas) || [];
-  const box = document.getElementById("licList");
-  box.innerHTML = eas.map((e) => `<div class="news-item"><b>${e.code}</b> ${e.name}
-    ${e.license_required
-      ? `<span class="tag">ซื้อ ${e.license_price_usdt} USDT</span> → ${e.checkout_path}`
-      : `<span class="ok">รวมในแพ็กเกจ</span>`}
-  </div>`).join("");
-}).catch(() => {
-  document.getElementById("licList").textContent = "เปิดเซิร์ฟเวอร์เพื่อโหลดแคตตาล็อกจริง";
-});
+/* Catalog: catalog-ui.js */
 </script>
 </body>
 </html>

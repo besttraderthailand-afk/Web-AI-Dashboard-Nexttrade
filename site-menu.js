@@ -1,6 +1,7 @@
 /**
  * Customer nav → subdomain hosts per locked plan (app/ai/news/pay/go).
  * Admin host never appears in this menu.
+ * UI: hamburger top-left → side drawer. Labels = titles only (no app./ai. prefixes).
  */
 (function (global) {
   "use strict";
@@ -16,15 +17,16 @@
     aff: "go",
   };
 
+  /* Visible labels only — do NOT show subdomain prefixes on menu */
   var LABELS = {
-    home: { host: "app.", title: "ฮับ" },
-    ai: { host: "ai.", title: "กราฟ + แชต" },
-    control: { host: "ai.", title: "ควบคุม" },
-    news: { host: "news.", title: "ข่าว" },
-    pay: { host: "pay.", title: "ชำระเงิน" },
-    aff: { host: "go.", title: "Affiliate" },
-    tree: { host: "app.", title: "ผังสมาชิก" },
-    keys: { host: "app.", title: "API Keys" },
+    home: "ฮับ",
+    ai: "กราฟ + แชต",
+    control: "ควบคุม",
+    news: "ข่าว",
+    pay: "ชำระเงิน",
+    aff: "Affiliate",
+    tree: "ผังสมาชิก",
+    keys: "API Keys",
   };
 
   function hosts() {
@@ -63,6 +65,43 @@
     return String(base).replace(/\/$/, "") + "/" + hash;
   }
 
+  function menuEl() {
+    return document.getElementById("siteMenu");
+  }
+
+  function backdropEl() {
+    return document.getElementById("menuBackdrop");
+  }
+
+  function toggleBtn() {
+    return document.getElementById("menuToggle");
+  }
+
+  function setOpen(open) {
+    var menu = menuEl();
+    var bd = backdropEl();
+    var btn = toggleBtn();
+    if (menu) menu.classList.toggle("open", !!open);
+    if (bd) bd.classList.toggle("open", !!open);
+    if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
+    try {
+      document.body.style.overflow = open ? "hidden" : "";
+    } catch (e) {}
+  }
+
+  function closeMenu() {
+    setOpen(false);
+  }
+
+  function openMenu() {
+    setOpen(true);
+  }
+
+  function toggleMenu() {
+    var menu = menuEl();
+    setOpen(!(menu && menu.classList.contains("open")));
+  }
+
   function goSpa(name) {
     var pages = document.querySelectorAll(".page");
     var nav = document.querySelectorAll("#siteMenu [data-page]");
@@ -81,22 +120,21 @@
     var href = urlFor(page);
     if (href.charAt(0) === "#") {
       goSpa(page);
-      var menu = document.getElementById("siteMenu");
-      if (menu) menu.classList.remove("open");
+      closeMenu();
       return;
     }
     location.href = href;
   }
 
   function wire() {
-    var menu = document.getElementById("siteMenu");
+    var menu = menuEl();
     if (!menu) return;
 
     menu.querySelectorAll("[data-page]").forEach(function (el) {
       var page = el.getAttribute("data-page");
-      var meta = LABELS[page];
-      if (meta) {
-        el.innerHTML = "<small>" + meta.host + "</small>" + meta.title;
+      var label = LABELS[page];
+      if (label) {
+        el.textContent = label;
       }
       if (el.tagName === "A") {
         el.setAttribute("href", urlFor(page));
@@ -117,12 +155,29 @@
       });
     });
 
-    var toggle = document.getElementById("menuToggle");
+    var toggle = toggleBtn();
     if (toggle) {
-      toggle.onclick = function () {
-        menu.classList.toggle("open");
+      toggle.onclick = function (ev) {
+        ev.preventDefault();
+        toggleMenu();
       };
     }
+    var closer = document.getElementById("menuClose");
+    if (closer) {
+      closer.onclick = function (ev) {
+        ev.preventDefault();
+        closeMenu();
+      };
+    }
+    var bd = backdropEl();
+    if (bd) {
+      bd.onclick = function () {
+        closeMenu();
+      };
+    }
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") closeMenu();
+    });
 
     if (location.hash) {
       goSpa(location.hash.slice(1));
@@ -143,6 +198,9 @@
     mode: mode,
     goSpa: goSpa,
     wire: wire,
+    open: openMenu,
+    close: closeMenu,
+    toggle: toggleMenu,
   };
 
   if (document.readyState === "loading") {
