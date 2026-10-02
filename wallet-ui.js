@@ -5,7 +5,8 @@
     console.error("NexxWallet missing — load wallet-connect.js first");
     return;
   }
-  var who = document.getElementById("who");
+  /* Prefer #walletWho so Google primary #who is not overwritten */
+  var who = document.getElementById("walletWho") || document.getElementById("who");
   var connectBtn = document.getElementById("connect");
   var menu = document.getElementById("walletMenu");
   var errEl = document.getElementById("walletErr");
@@ -38,9 +39,9 @@
   function render(s) {
     refreshWcGate();
     if (!s.account) {
-      who.textContent = "ยังไม่เชื่อมวอลเล็ต";
+      who.textContent = "ยังไม่เชื่อมวอลเล็ตถอน";
       who.className = "pill";
-      connectBtn.textContent = "เชื่อมวอลเล็ต";
+      connectBtn.textContent = "เชื่อมวอลเล็ตถอน";
       btnSiwe.style.display = "none";
       btnDisc.style.display = "none";
       btnInjected.style.display = "";
@@ -50,7 +51,7 @@
     var chainLabel = s.onBsc ? "BSC" : "chain " + (s.chainId || "?");
     who.textContent = s.short + " · " + chainLabel;
     who.className = "pill " + (s.onBsc ? "ok-chain" : "warn-chain");
-    connectBtn.textContent = "วอลเล็ต";
+    connectBtn.textContent = "วอลเล็ตถอน";
     btnSiwe.style.display = "";
     btnDisc.style.display = "";
     btnInjected.style.display = "none";

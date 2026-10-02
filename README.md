@@ -9,7 +9,7 @@
 
 | Audience | Surface | Notes |
 |---|---|---|
-| **Customers** | Customer Vercel project (`web-ai-dashboard-nt`) and GitHub Pages | Wallet connect only — no Admin CTA in the customer UI |
+| **Customers** | Customer Vercel project (`web-ai-dashboard-nt`) and GitHub Pages | **Google login** primary; subdomain menu app/ai/news/pay/go; no Admin CTA |
 | **Admins** | Separate Vercel project (`nexttrade-admin-console`) | Serves `console.html` at `/` (project rewrite). Not linked from customer pages |
 
 GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Dashboard-Nexttrade/
@@ -20,9 +20,11 @@ GitHub Pages (customer demo): https://besttraderthailand-afk.github.io/Web-AI-Da
 |---|---|
 | `control.html` | SNAP / Providers / Analyze-only |
 | `control-layer.js` | สถานะคีย์ + parse SNAP |
-| `index.html` | หน้าหลักลูกค้า (Web3 connect) |
-| `wallet-connect.js` | EIP-1193 MetaMask/injected + WC scaffold |
-| `wallet-ui.js` | UI เมนูเชื่อมวอลเล็ต |
+| `index.html` | หน้าหลักลูกค้า (Google login + เมนูซับโดเมน) |
+| `google-auth.js` / `auth-ui.js` | Google Identity Services scaffold |
+| `site-menu.js` | เมนู app/ai/news/pay/go จาก `CUSTOMER_HOSTS` |
+| `wallet-connect.js` / `wallet-ui.js` | วอลเล็ตถอน (รอง — ไม่ใช่ล็อกอินหลัก) |
+| `docs/CUSTOMER_HOSTS.md` | DNS / Vercel / Google Client ID |
 | `console.html` | แอดมินคอนโสล (internal; separate admin URL) |
 | `config.js` | `ADMIN_API_BASE` + `NEXTTRADE_BACKEND_URL` (placeholder) + WC / BSC / vault |
 | `ai-chart.html` | TradingView คนละชั้น (เต็มจอ) |
@@ -86,9 +88,17 @@ Admin credentials and bootstrap secrets live in environment / deployment config 
 - Repo `gold-trading-news-automation` มีสแกนเนอร์จริง แต่ **ยังไม่มี public HTTP API** และต้องมี secrets — อย่า proxy บน Vercel จนกว่าผู้ใช้ให้คีย์; เว็บใช้วิดเจ็ต TradingView
 - `nexttrade-backend` (`/news/guard`, `/scan`) ยังไม่ deploy สาธารณะ — ตั้ง `NEXTTRADE_BACKEND_URL` ใน `config.js` หลังมี URL จริง (ดู `docs/DEPLOY.md` ใน repo backend)
 
-## Web3 เชื่อมวอลเล็ต (Phase 1)
+## Google login (หลัก) + เมนูซับโดเมน
 
-ลูกค้าเว็บ `https://web-ai-dashboard-nt.vercel.app` ใช้ **MetaMask / injected** จริงบน **BSC mainnet (chainId 56)** — แสดงที่อยู่ย่อ, ตัดการเชื่อมต่อ, ฟัง `accountsChanged` / `chainChanged`, และขอสลับเชนถ้าไม่ใช่ BSC.
+ตามแผนล็อก 2026-10-02: ลูกค้าเข้าด้วย **Google** · เมนูแยกโฮสต์ `app.` `ai.` `news.` `pay.` `go.` (admin คนละ URL)
+
+1. ตั้ง `GOOGLE_CLIENT_ID` ใน `config.js` (OAuth Web client — public) หรือ `localStorage.google_client_id`
+2. Authorized origins: `https://web-ai-dashboard-nt.vercel.app` + โดเมนลูกค้าเมื่อมี
+3. ดูแมป DNS/Vercel ที่ [`docs/CUSTOMER_HOSTS.md`](./docs/CUSTOMER_HOSTS.md)
+
+### Web3 วอลเล็ตถอน (รอง — ไม่ใช่ล็อกอิน)
+
+บนหน้าผังหลังจ่ายแล้ว มีปุ่ม **เชื่อมวอลเล็ตถอน** (MetaMask / WC) สำหรับ Claim เท่านั้น ไม่ขึ้นเป็น CTA หลักที่เฮดเดอร์
 
 ### ทดสอบ MetaMask
 1. เปิดไซต์บน Chrome/Brave ที่มี MetaMask
@@ -116,7 +126,7 @@ window.WALLETCONNECT_PROJECT_ID = "YOUR_REOWN_PROJECT_ID";
 `personal_sign` เดโมในเมนูระบุชัดว่า **ไม่ใช่ SIWE session** (ยังไม่มี backend nonce)
 
 ### ชำระเงิน
-ปุ่มจ่าย 20 USDT ยังเป็น **จำลอง** จนกว่าจะมี `USDT_PAYMENT_VAULT` ใน config — ห้ามเดาที่อยู่ vault
+จ่ายแพ็ก **20 USDT** ด้วยเลขบิล+QR (จำนวนเต็ม) ตามแผนล็อก — ปุ่มยัง**จำลอง**จนกว่า API จับบิลพร้อม · `USDT_PAYMENT_VAULT` ว่าง deliberately (ห้ามเดาที่อยู่)
 
 ## Marketing (internal)
 

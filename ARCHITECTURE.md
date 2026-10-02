@@ -157,3 +157,12 @@ Engine STOP ที่ EA หรือที่ `/engine` ตัดข้อเ�
 - LINE OA อยู่คนละขอบเขต (ซัพพอร์ตคน ไม่ใช่สัญญาณเทรด)
 
 เมื่อต่อสายเพิ่ม ให้แก้เอกสารนี้ชุดเดียวกันทุก repo ไม่แตกสเปกคนละไฟล์
+
+## 9. Client hosts + Google login (locked 2026-10-02)
+
+แหล่งเดียวกับ `NexxTrade-EA-Admin-Private/ARCHITECTURE.md` — ดูรายละเอียด DNS ที่ `docs/CUSTOMER_HOSTS.md`
+
+- เมนูลูกค้า: `app.` `ai.` `news.` `pay.` `go.` — **ไม่ลิงก์ admin**
+- Login: **Google** — โหนดผังเกิดหลังบิลแพ็ก 20 USDT (เลขบิล+QR, จำนวนเต็ม)
+- Web3 ไม่ใช่ทางเข้าหลัก (Claim/ถอนเท่านั้น)
+
