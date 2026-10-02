@@ -1,19 +1,43 @@
 /* Public config — no secrets.
- * Admin console + customer wallet connect settings.
  * Override via window.* before this script, ?query, or localStorage where noted.
  */
+
 window.ADMIN_API_BASE =
   window.ADMIN_API_BASE || "https://nexttrade-ea-admin-api.vercel.app";
 
-/* WalletConnect / Reown Cloud Project ID (public).
- * Set here, or window.WALLETCONNECT_PROJECT_ID before load,
- * or localStorage key: walletconnect_project_id
- * Allowed origin for this deploy: https://web-ai-dashboard-nt.vercel.app
- * Leave empty → WalletConnect button shows setup hint (MetaMask still works).
+/* ---- Customer auth (locked plan 2026-10-02): Google primary ----
+ * Set GOOGLE_CLIENT_ID from Google Cloud OAuth Web client (public).
+ * Never commit client secrets. Leave empty → UI shows Thai setup hint.
+ * localStorage override: google_client_id
  */
+window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "";
+
+/* ---- Customer hosts (locked plan): app. ai. news. pay. go. ; admin separate ----
+ * Placeholders use nexxtrade.example (same pattern as go. link + ADMIN_HOSTS docs).
+ * Do not invent a real custom domain here — fill after DNS is ready.
+ *
+ * CUSTOMER_MENU_MODE:
+ *   "auto"  — on vercel.app / github.io / localhost → SPA hash; on *.nexxtrade.example → host URLs
+ *   "spa"   — always same-origin #page (single Vercel project today)
+ *   "hosts" — always navigate to CUSTOMER_HOSTS absolute URLs
+ */
+window.CUSTOMER_ROOT_DOMAIN = window.CUSTOMER_ROOT_DOMAIN || "nexxtrade.example";
+window.CUSTOMER_MENU_MODE = window.CUSTOMER_MENU_MODE || "auto";
+window.CUSTOMER_HOSTS = window.CUSTOMER_HOSTS || {
+  app: "https://app.nexxtrade.example",
+  ai: "https://ai.nexxtrade.example",
+  news: "https://news.nexxtrade.example",
+  pay: "https://pay.nexxtrade.example",
+  go: "https://go.nexxtrade.example",
+};
+/* Admin is NOT in customer menu — separate origin only */
+window.ADMIN_HOST_URL =
+  window.ADMIN_HOST_URL || "https://admin.nexxtrade.example";
+
+/* WalletConnect / Reown — secondary (claim/withdraw only). Not primary login. */
 window.WALLETCONNECT_PROJECT_ID = window.WALLETCONNECT_PROJECT_ID || "";
 
-/* BSC mainnet — connect / switch target */
+/* BSC mainnet — connect / switch target (claim wallet only) */
 window.WALLET_CHAIN_ID = window.WALLET_CHAIN_ID || 56;
 window.WALLET_CHAIN_HEX = window.WALLET_CHAIN_HEX || "0x38";
 window.WALLET_CHAIN_NAME = window.WALLET_CHAIN_NAME || "BNB Smart Chain";
@@ -21,30 +45,16 @@ window.WALLET_RPC_URL =
   window.WALLET_RPC_URL || "https://bsc-dataseed.binance.org/";
 window.WALLET_EXPLORER = window.WALLET_EXPLORER || "https://bscscan.com";
 
-/* USDT BEP20 payment vault — leave empty = payment stays simulation (do not invent) */
+/* USDT BEP20 payment vault — leave empty.
+ * Locked pay plan uses bill-number + QR matching (integer 20 USDT), not a shared vault.
+ * Do not invent an address.
+ */
 window.USDT_PAYMENT_VAULT = window.USDT_PAYMENT_VAULT || "";
 
-/* EA catalog — public, no auth.
- * Live: ADMIN_API_BASE + "/catalog/eas"
- * Fallback static file (always ship with Pages/Vercel static):
- */
 window.CATALOG_STATIC_URL = window.CATALOG_STATIC_URL || "./catalog/eas.json";
 
-/* nexttrade-backend (scan / news / rules / notify) — set ONLY after a real public URL exists.
- * Leave empty until VPS/Docker deploy is live. Do not invent a host.
- * Example: "https://api.your-domain.com"
- * CORS on the backend must include this dashboard origin.
- */
 window.NEXTTRADE_BACKEND_URL = window.NEXTTRADE_BACKEND_URL || "";
 
-
-/* Local Nexttrade-AI-Agent bridge (customer PC). Dashboard probes /health then /chat.
- * Override: window.LOCAL_AGENT_URL before load, or leave default.
- */
 window.LOCAL_AGENT_URL = window.LOCAL_AGENT_URL || "http://127.0.0.1:8787";
 
-/* Optional chat proxy (BYOK). Empty = same-origin "/api/chat" on Vercel.
- * Proxy never invents company keys; customer sends X-Customer-Api-Key.
- * Company-paid LLM only if deploy sets CHAT_ALLOW_SERVER_KEYS=1 + env keys.
- */
 window.CHAT_PROXY_URL = window.CHAT_PROXY_URL || "";
