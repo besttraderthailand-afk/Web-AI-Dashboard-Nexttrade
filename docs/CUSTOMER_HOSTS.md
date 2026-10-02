@@ -1,7 +1,7 @@
 # Customer hosts + Google login (locked 2026-10-02)
 
 แหล่งแผน: `NexxTrade-EA-Admin-Private/ARCHITECTURE.md` § **Client hosts and pay plan (locked 2026-10-02)**  
-สะท้อนในแดชบอร์ด: `PLAN_LOCKED.md`, เมนู `#siteMenu`, `config.js`
+สะท้อนในแดชบอร์ด: `PLAN_LOCKED.md`, เมนู `#siteMenu` (hamburger → side drawer; **ไม่โชว์** prefix `app.`/`ai.` บนป้ายเมนู), `config.js`
 
 ## Login
 
