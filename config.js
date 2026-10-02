@@ -10,7 +10,9 @@ window.ADMIN_API_BASE =
  * Never commit client secrets. Leave empty → UI shows Thai setup hint.
  * localStorage override: google_client_id
  */
-window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "";
+window.GOOGLE_CLIENT_ID =
+  window.GOOGLE_CLIENT_ID ||
+  "680268728616-uasvqesui9dgqhth085791h27rtdh6ts.apps.googleusercontent.com";
 
 /* ---- Customer hosts (locked plan): app. ai. news. pay. go. ; admin separate ----
  * Placeholders use nexxtrade.example (same pattern as go. link + ADMIN_HOSTS docs).
