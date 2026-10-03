@@ -207,7 +207,8 @@
       <strong>เมนู</strong>
       <button type="button" class="drawer-close" id="menuClose" aria-label="ปิดเมนู">×</button>
     </div>
-    <button class="on" data-page="home" type="button">ฮับ</button>
+    <button class="on" data-page="profile" type="button">โปรไฟล์สมาชิก</button>
+    <button data-page="home" type="button">ฮับ</button>
     <button data-page="ai" type="button">กราฟ + แชต</button>
     <button data-page="control" type="button">ควบคุม</button>
     <button data-page="news" type="button">ข่าว</button>
@@ -218,7 +219,36 @@
   </nav>
 
   <main>
-    <section class="page on" id="home">
+    <section class="page on" id="profile">
+      <div class="card" id="profileCard">
+        <h2>โปรไฟล์สมาชิก</h2>
+        <p class="muted">ชื่อจาก Google แก้ได้ · รายละเอียดโปรไฟล์แก้ได้ · หน้าแรกของระบบ</p>
+        <label class="field">ชื่อที่แสดง
+          <input id="profileName" type="text" maxlength="80" placeholder="ชื่อจาก Google" autocomplete="name" />
+        </label>
+        <label class="field">รายละเอียด
+          <textarea id="profileDetails" rows="3" placeholder="เบอร์ ไลน์ หรือหมายเหตุ"></textarea>
+        </label>
+        <h3 style="margin-top:14px">ยืนยันตัวตน — เลือกอย่างใดอย่างหนึ่ง</h3>
+        <div class="kyc-types" id="kycIdType">
+          <label><input type="radio" name="kycIdType" value="idcard" checked /> บัตรประชาชน</label>
+          <label><input type="radio" name="kycIdType" value="licence" /> ใบขับขี่</label>
+          <label><input type="radio" name="kycIdType" value="passport" /> Passport</label>
+        </div>
+        <input id="kycIdFile" type="file" accept="image/*" aria-label="ไฟล์เอกสารยืนยันตัวตน" />
+        <img id="kycIdPreview" class="kyc-preview" alt="ตัวอย่างเอกสารยืนยันตัวตน" hidden />
+        <h3 style="margin-top:14px">หน้าสมุดบัญชี (ใช้ถอนเท่านั้น)</h3>
+        <p class="muted">หน้าสมุดบัญชีใช้ตอนถอนรายได้เท่านั้น ไม่สามารถใช้แทนบัตรประชาชน ใบขับขี่ หรือ Passport</p>
+        <input id="kycBankFile" type="file" accept="image/*" aria-label="ไฟล์หน้าสมุดบัญชี" />
+        <img id="kycBankPreview" class="kyc-preview" alt="ตัวอย่างหน้าสมุดบัญชี" hidden />
+        <div style="height:8px"></div>
+        <button class="btn" id="saveProfile" type="button">บันทึกโปรไฟล์</button>
+        <p id="profileMsg" class="muted"></p>
+        <p id="kycState" class="warn">ยังไม่ครบ — ขาดเอกสารยืนยันตัวตน และขาดหน้าสมุดบัญชี</p>
+      </div>
+    </section>
+
+    <section class="page" id="home">
       <div class="card" id="homeChartCard">
         <h2 id="homeChartTitle" style="margin:0">XAUUSD · 15</h2>
         <div class="symbol-search">
@@ -430,33 +460,6 @@ SETUP: FVG + OB sweep"></textarea>
     </section>
 
     <section class="page" id="tree">
-      <div class="card" id="profileCard">
-        <h2>โปรไฟล์สมาชิก</h2>
-        <p class="muted">ชื่อจาก Google แก้ได้ · รายละเอียดโปรไฟล์แก้ได้ · อยู่หน้าเดียวกับผังสมาชิก</p>
-        <label class="field">ชื่อที่แสดง
-          <input id="profileName" type="text" maxlength="80" placeholder="ชื่อจาก Google" autocomplete="name" />
-        </label>
-        <label class="field">รายละเอียด
-          <textarea id="profileDetails" rows="3" placeholder="เบอร์ ไลน์ หรือหมายเหตุ"></textarea>
-        </label>
-        <h3 style="margin-top:14px">ยืนยันตัวตน — เลือกอย่างใดอย่างหนึ่ง</h3>
-        <div class="kyc-types" id="kycIdType">
-          <label><input type="radio" name="kycIdType" value="idcard" checked /> บัตรประชาชน</label>
-          <label><input type="radio" name="kycIdType" value="licence" /> ใบขับขี่</label>
-          <label><input type="radio" name="kycIdType" value="passport" /> Passport</label>
-        </div>
-        <input id="kycIdFile" type="file" accept="image/*" aria-label="ไฟล์เอกสารยืนยันตัวตน" />
-        <img id="kycIdPreview" class="kyc-preview" alt="ตัวอย่างเอกสารยืนยันตัวตน" hidden />
-        <h3 style="margin-top:14px">หน้าสมุดบัญชี (ใช้ถอนเท่านั้น)</h3>
-        <p class="muted">หน้าสมุดบัญชีใช้ตอนถอนรายได้เท่านั้น ไม่สามารถใช้แทนบัตรประชาชน ใบขับขี่ หรือ Passport</p>
-        <input id="kycBankFile" type="file" accept="image/*" aria-label="ไฟล์หน้าสมุดบัญชี" />
-        <img id="kycBankPreview" class="kyc-preview" alt="ตัวอย่างหน้าสมุดบัญชี" hidden />
-        <div style="height:8px"></div>
-        <button class="btn" id="saveProfile" type="button">บันทึกโปรไฟล์</button>
-        <p id="profileMsg" class="muted"></p>
-        <p id="kycState" class="warn">ยังไม่ครบ — ขาดเอกสารยืนยันตัวตน และขาดหน้าสมุดบัญชี</p>
-      </div>
-      <div style="height:14px"></div>
       <div class="card" id="treeLocked">
         <h2>ผังสายงานยังไม่เปิด</h2>
         <p>ล็อกอิน Google ได้ทุกคน แต่จะถูกวางในผังก็ต่อเมื่อชำระแพ็กเกจ 20 USDT แล้วเท่านั้น</p>

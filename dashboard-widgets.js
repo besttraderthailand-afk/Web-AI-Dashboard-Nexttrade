@@ -354,10 +354,14 @@
       });
     });
     paintChrome();
-    let page = "home";
+    let page = "profile";
     const hash = (location.hash || "").replace(/^#/, "");
     const node = hash && document.getElementById(hash);
     if (node && node.classList.contains("page")) page = hash;
+    else {
+      const visible = document.querySelector("section.page.on");
+      if (visible && visible.id) page = visible.id;
+    }
     onPage(page);
   }
 

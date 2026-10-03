@@ -7,6 +7,7 @@
   "use strict";
 
   var PAGE_HOST = {
+    profile: "app",
     home: "app",
     tree: "app",
     keys: "app",
@@ -19,6 +20,7 @@
 
   /* Visible labels only — do NOT show subdomain prefixes on menu */
   var LABELS = {
+    profile: "โปรไฟล์สมาชิก",
     home: "ฮับ",
     ai: "กราฟ + แชต",
     control: "ควบคุม",
@@ -182,8 +184,10 @@
       if (ev.key === "Escape") closeMenu();
     });
 
-    if (location.hash) {
+    if (location.hash && location.hash.length > 1) {
       goSpa(location.hash.slice(1));
+    } else {
+      goSpa("profile");
     }
 
     var modePill = document.getElementById("hostModeHint");
