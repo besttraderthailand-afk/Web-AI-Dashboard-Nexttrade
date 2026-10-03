@@ -9,13 +9,18 @@
 html, body { margin:0; height:100%; font:14px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--txt); }
 .wrap { max-width:1100px; margin:0 auto; padding:14px; }
 .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
-.asset-bar, .tf-bar { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
-.asset-bar button, .tf-bar button {
+.tf-bar { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+.tf-bar button {
   background:var(--chip); color:var(--dim); border:1px solid var(--line);
   border-radius:999px; padding:5px 10px; cursor:pointer; font:12px inherit;
 }
-.asset-bar button.on { color:#111; background:var(--gold); border-color:var(--gold); }
 .tf-bar button.on { color:var(--txt); border-color:var(--gold); }
+.symbol-search { position:relative; margin:0 0 10px; }
+input { width:100%; background:#0b1220; color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font:inherit; }
+.symbol-results { position:absolute; z-index:5; left:0; right:0; top:calc(100% + 4px); background:#0c121e; border:1px solid var(--line); border-radius:10px; max-height:240px; overflow:auto; }
+.symbol-results[hidden] { display:none; }
+.symbol-results button { display:flex; width:100%; justify-content:space-between; gap:8px; background:transparent; color:var(--txt); border:0; border-bottom:1px solid var(--line); padding:8px 10px; cursor:pointer; text-align:left; font:inherit; }
+.symbol-results .prov { color:#f0d27a; font-weight:700; font-size:12px; }
 .row { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
 #tvHost { height:520px; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
 .muted { color:var(--dim); }
@@ -26,9 +31,12 @@ a { color:#f0d27a; }
 <div class="wrap">
   <p class="muted"><a href="index.html#ai">← แดชบอร์ด v1</a> · TradingView สดสด · คริปโตติ้หมายเลย์ v2</p>
   <div class="card">
-    <div class="asset-bar" id="assetBar"></div>
+    <div class="symbol-search">
+      <input id="symbolSearch" type="search" placeholder="ค้นหาสัญลักษณ์ เช่น xau" autocomplete="off" />
+      <div id="symbolResults" class="symbol-results" hidden></div>
+    </div>
     <div class="row">
-      <h2 id="chartTitle" style="margin:0">XAUUSD · M15</h2>
+      <h2 id="chartTitle" style="margin:0">XAUUSD · 15</h2>
       <div class="tf-bar" id="tfBar"></div>
     </div>
     <p class="muted" id="chartMeta"></p>
@@ -38,25 +46,47 @@ a { color:#f0d27a; }
 <script src="chart-assets.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-const ASSETS = window.NEXX_ASSETS || [
-  { id: "XAUUSD", group: "metal", label: "ทอง", venue: "v1", tv: "OANDA:XAUUSD" }
+const BOOK = window.NEXX_SYMBOL_BOOK || [{
+  id: "XAUUSD", label: "ทอง", aliases: ["xau", "gold"],
+  providers: [{ name: "OANDA", tv: "OANDA:XAUUSD" }]
+}];
+const TFS = window.NEXX_TF_LIST || [
+  { id: "1", label: "1" }, { id: "5", label: "5" }, { id: "15", label: "15" },
+  { id: "30", label: "30" }, { id: "1H", label: "1H" }, { id: "4H", label: "4H" },
+  { id: "1D", label: "1D" }, { id: "1W", label: "1W" }
 ];
-const TFS = ["M1", "M5", "M15", "H1"];
-const TFMAP = window.NEXX_TF_TO_TV || { M1: "1", M5: "5", M15: "15", H1: "60" };
-let currentAsset = ASSETS[0];
-let currentTf = "M15";
-let tvWidget = null;
+const TFMAP = window.NEXX_TF_TO_TV || { "15": "15", "1H": "60" };
+let current = { id: "XAUUSD", label: "ทอง", provider: "OANDA", tv: "OANDA:XAUUSD" };
+let currentTf = "15";
+let seq = 0;
+
+function rowsFor(q) {
+  const query = String(q || "").trim().toLowerCase();
+  const out = [];
+  BOOK.forEach((s) => (s.providers || []).forEach((p) => {
+    const hay = [s.id, s.label, p.name, p.tv].concat(s.aliases || []).join(" ").toLowerCase();
+    if (!query || hay.indexOf(query) !== -1) {
+      out.push({ id: s.id, label: s.label, provider: p.name, tv: p.tv });
+    }
+  }));
+  return out.slice(0, 40);
+}
 
 function mountTv() {
   const host = document.getElementById("tvHost");
+  if (typeof TradingView === "undefined") {
+    host.innerHTML = '<p class="muted" style="padding:16px">โหลด TradingView ไม่ได้ ตรวจสัญญาณอนุญาตให้ s3.tradingview.com</p>';
+    return;
+  }
   host.innerHTML = "";
   const node = document.createElement("div");
-  node.id = "tvframe";
+  seq += 1;
+  node.id = "tvframe" + seq;
   node.style.height = "100%";
   host.appendChild(node);
-  tvWidget = new TradingView.widget({
+  new TradingView.widget({
     autosize: true,
-    symbol: currentAsset.tv || currentAsset.id,
+    symbol: current.tv,
     interval: TFMAP[currentTf] || "15",
     timezone: "Asia/Bangkok",
     theme: "dark",
@@ -66,32 +96,22 @@ function mountTv() {
     enable_publishing: false,
     hide_top_toolbar: false,
     hide_legend: false,
+    allow_symbol_change: true,
     save_image: false,
-    container_id: "tvframe",
+    container_id: node.id,
     studies: ["MASimple@tv-basicstudies"]
   });
 }
 
 function paintChrome() {
-  const a = currentAsset;
-  document.getElementById("chartTitle").textContent = a.id + " · " + currentTf;
+  document.getElementById("chartTitle").textContent = current.id + " · " + currentTf;
   document.getElementById("chartMeta").textContent =
-    a.label + " · " + a.group + " · " + (a.tv || a.id) + " · สิทธิ์ " + a.venue +
-    (a.venue === "v2" ? " (ต้องมีใบ MEM_V2)" : "");
-  const bar = document.getElementById("assetBar");
-  bar.innerHTML = ASSETS.map((x) =>
-    `<button type="button" class="${x.id === a.id ? "on" : ""}" data-id="${x.id}">${x.id}</button>`
-  ).join("");
-  bar.querySelectorAll("button").forEach((b) => {
-    b.onclick = () => {
-      currentAsset = ASSETS.find((x) => x.id === b.dataset.id);
-      paintChrome();
-      mountTv();
-    };
-  });
+    current.label + " · " + current.provider + " · " + current.tv;
+  const search = document.getElementById("symbolSearch");
+  if (search && document.activeElement !== search) search.value = current.tv;
   const tf = document.getElementById("tfBar");
   tf.innerHTML = TFS.map((t) =>
-    `<button type="button" class="${t === currentTf ? "on" : ""}" data-tf="${t}">${t}</button>`
+    `<button type="button" class="${t.id === currentTf ? "on" : ""}" data-tf="${t.id}">${t.label}</button>`
   ).join("");
   tf.querySelectorAll("button").forEach((b) => {
     b.onclick = () => {
@@ -102,13 +122,30 @@ function paintChrome() {
   });
 }
 
+function showResults(q) {
+  const box = document.getElementById("symbolResults");
+  const rows = rowsFor(q);
+  box.innerHTML = rows.map((r) =>
+    `<button type="button" data-tv="${r.tv}" data-id="${r.id}" data-prov="${r.provider}" data-label="${r.label}"><span>${r.id} <small>${r.tv}</small></span><span class="prov">${r.provider}</span></button>`
+  ).join("") || '<div class="muted" style="padding:8px">ไม่พบสัญลักษณ์</div>';
+  box.hidden = false;
+  box.querySelectorAll("button").forEach((b) => {
+    b.onclick = () => {
+      current = { id: b.dataset.id, label: b.dataset.label, provider: b.dataset.prov, tv: b.dataset.tv };
+      box.hidden = true;
+      paintChrome();
+      mountTv();
+    };
+  });
+}
+
 function boot() {
-  if (typeof TradingView === "undefined") {
-    document.getElementById("tvHost").innerHTML =
-      '<p class="muted" style="padding:16px">โหลด TradingView ไม่ได้ ตรวจสัญญาณอนุญาตให้ s3.tradingview.com</p>';
-    paintChrome();
-    return;
-  }
+  const input = document.getElementById("symbolSearch");
+  input.addEventListener("focus", () => showResults(input.value));
+  input.addEventListener("input", () => showResults(input.value));
+  document.addEventListener("click", (ev) => {
+    if (!ev.target.closest(".symbol-search")) document.getElementById("symbolResults").hidden = true;
+  });
   paintChrome();
   mountTv();
 }
