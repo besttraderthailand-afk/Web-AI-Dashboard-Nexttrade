@@ -92,7 +92,8 @@
       border:1px solid var(--line);
     }
     .chart svg { width:100%; height:100%; display:block; }
-    .chart.tv { height:360px; padding:0; }
+    .chart.tv { height:420px; min-height:400px; padding:0; }
+    .tv-embed { height:400px; min-height:400px; border-radius:12px; overflow:hidden; background:#0b1220; }
     .asset-bar, .tf-bar { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
     .asset-bar button, .tf-bar button { background:var(--chip); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; font:inherit; }
     .asset-bar button.on, .tf-bar button.on { border-color:var(--gold); color:var(--gold2); }
@@ -128,8 +129,32 @@
     .pill.ok-chain { border-color:#2a5a40; color:var(--ok); }
     .pill.warn-chain { border-color:#5c4318; color:var(--gold2); }
     .claim-wallet { margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+    .copy-row { display:flex; gap:8px; align-items:center; }
+    .copy-row input { flex:1; min-width:0; }
+    button.copy-btn {
+      width:auto; flex:0 0 auto; white-space:nowrap;
+      background:var(--chip); color:var(--gold2); border:1px solid var(--gold);
+      border-radius:10px; padding:9px 12px; font-weight:700; cursor:pointer; font:inherit;
+    }
+    button.copy-btn:hover { background:#2a2412; }
+    .symbol-search { position:relative; margin:8px 0; }
+    .symbol-results {
+      position:absolute; z-index:15; left:0; right:0; top:calc(100% + 4px);
+      background:#0c121e; border:1px solid var(--line); border-radius:10px;
+      max-height:260px; overflow:auto; box-shadow:0 12px 32px #000a;
+    }
+    .symbol-results[hidden] { display:none !important; }
+    .symbol-results button {
+      display:flex; width:100%; justify-content:space-between; align-items:center; gap:8px;
+      background:transparent; color:var(--txt); border:0; border-bottom:1px solid var(--line);
+      padding:8px 10px; cursor:pointer; font:inherit; text-align:left;
+    }
+    .symbol-results button small { color:var(--dim); }
+    .symbol-results button .prov { color:var(--gold2); font-size:12px; font-weight:700; }
+    .symbol-results button:hover { background:var(--chip); }
     @media (max-width:900px) {
       .hero, .cols-2, .cols-3 { grid-template-columns:1fr; }
+      .chart.tv, .tv-embed { height:400px; }
       header.top { gap:10px; padding:10px 12px; }
       .brand small { display:none; }
       .auth-wrap .pill { max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -174,6 +199,30 @@
 
   <main>
     <section class="page on" id="home">
+      <div class="card" id="homeChartCard">
+        <h2 id="homeChartTitle" style="margin:0">XAUUSD · 15</h2>
+        <div class="symbol-search">
+          <input id="homeSymbolSearch" type="search" placeholder="ค้นหาสัญลักษณ์ เช่น xau" autocomplete="off" enterkeyhint="search" />
+          <div id="homeSymbolResults" class="symbol-results" hidden></div>
+        </div>
+        <div class="tf-bar" id="homeTfBar"></div>
+        <div class="chart tv" id="homeChartHost">
+          <p class="muted" style="padding:16px">กำลังโหลดกราฟ…</p>
+        </div>
+        <p class="muted" id="homeChartMeta">ทอง · OANDA · OANDA:XAUUSD</p>
+      </div>
+      <div class="grid cols-2" style="margin:14px 0">
+        <div class="card">
+          <h2>ปฏิทินเศรษฐกิจ</h2>
+          <p class="muted">TradingView Economic Calendar · กรองสกุลเงินหลัก (มืด)</p>
+          <div id="homeCalendarHost" class="tv-embed"><p class="muted">กำลังโหลดปฏิทิน…</p></div>
+        </div>
+        <div class="card">
+          <h2>ฟีดข่าว · XAUUSD</h2>
+          <p class="muted">TradingView Timeline (symbol OANDA:XAUUSD)</p>
+          <div id="homeTimelineHost" class="tv-embed"><p class="muted">กำลังโหลดฟีด…</p></div>
+        </div>
+      </div>
       <div class="hero">
         <div>
           <h1>แพลตฟอร์มสัญญาณ + ข่าว + AI + สมาชิกภาพ</h1>
@@ -205,10 +254,13 @@
       <div class="grid cols-2">
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-            <h2 id="aiChartTitle" style="margin:0">XAUUSD · M15</h2>
+            <h2 id="aiChartTitle" style="margin:0">XAUUSD · 15</h2>
             <div class="tf-bar" id="aiTfBar"></div>
           </div>
-          <div class="asset-bar" id="aiAssetBar"></div>
+          <div class="symbol-search">
+            <input id="aiSymbolSearch" type="search" placeholder="ค้นหาสัญลักษณ์ เช่น xau" autocomplete="off" enterkeyhint="search" />
+            <div id="aiSymbolResults" class="symbol-results" hidden></div>
+          </div>
           <div class="chart tv" id="tvInlineHost">
             <p class="muted" style="padding:16px">กำลังโหลด TradingView…</p>
           </div>
@@ -273,12 +325,12 @@ SETUP: FVG + OB sweep"></textarea>
         <div class="card">
           <h2>ปฏิทินเศรษฐกิจ</h2>
           <p class="muted">TradingView Economic Calendar · กรองสกุลเงินหลัก (มืด)</p>
-          <div id="tvCalendarHost"><p class="muted">เปิดแท็บข่าวเพื่อโหลดปฏิทิน…</p></div>
+          <div id="tvCalendarHost" class="tv-embed"><p class="muted">กำลังโหลดปฏิทิน…</p></div>
         </div>
         <div class="card">
           <h2>ฟีดข่าว · XAUUSD</h2>
           <p class="muted">TradingView Timeline (symbol OANDA:XAUUSD)</p>
-          <div id="tvTimelineHost"><p class="muted">เปิดแท็บข่าวเพื่อโหลดฟีด…</p></div>
+          <div id="tvTimelineHost" class="tv-embed"><p class="muted">กำลังโหลดฟีด…</p></div>
         </div>
       </div>
       <p class="muted" style="margin-top:12px">หมายเหตุ: สแกนเนอร์ทองใน repo <code>gold-trading-news-automation</code> (biquote / Forex Factory / RSS) ยังไม่มี HTTP API สาธารณะให้เว็บนี้ยิงตรง — ฝั่งเว็บใช้วิดเจ็ต TradingView จนกว่าจะมี backend <code>/news</code></p>
@@ -337,13 +389,19 @@ SETUP: FVG + OB sweep"></textarea>
       <div class="grid cols-2">
         <div class="card">
           <h2>ลิงก์แนะนำแพลตฟอร์ม (ระบบออกให้)</h2>
-          <input readonly value="https://go.nexxtrade.example/r/LEADER01" />
+          <div class="copy-row">
+            <input id="platformRef" readonly value="https://go.nexxtrade.example/r/LEADER01" />
+            <button class="copy-btn" type="button" data-copy-target="platformRef">คัดลอก</button>
+          </div>
           <p class="muted">ติดสปอนเซอร์ตอนคนใหม่จ่ายแพ็กเกจ</p>
         </div>
         <div class="card">
           <h2>ลิงก์ IB โบรกเกอร์ (ของใครของมัน)</h2>
           <p class="muted">ระบบไม่สมัคร IB ให้ — วาง URL เอง</p>
-          <input id="ibUrl" placeholder="https://exness.com/a/ของคุณ" />
+          <div class="copy-row">
+            <input id="ibUrl" placeholder="https://exness.com/a/ของคุณ" />
+            <button class="copy-btn" type="button" data-copy-target="ibUrl">คัดลอก</button>
+          </div>
           <div style="height:8px"></div>
           <button class="ghost" id="saveIb">บันทึกตัวอย่าง</button>
           <ul id="ibList"><li>exness.com — https://exness.com/a/abc</li></ul>
@@ -525,6 +583,41 @@ document.getElementById("saveIb").onclick = () => {
   if (!u) return;
   document.getElementById("ibList").insertAdjacentHTML("beforeend", `<li>${u}</li>`);
 };
+function fallbackCopyText(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.position = "fixed";
+  ta.style.top = "0";
+  ta.style.left = "0";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
+function flashCopied(btn) {
+  const prev = btn.textContent;
+  btn.textContent = "คัดลอกแล้ว";
+  window.setTimeout(() => { btn.textContent = prev; }, 1400);
+}
+document.querySelectorAll("[data-copy-target]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const el = document.getElementById(btn.getAttribute("data-copy-target"));
+    const text = el ? String(el.value || "") : "";
+    if (!text) return;
+    const done = () => flashCopied(btn);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => {
+        if (fallbackCopyText(text)) done();
+      });
+    } else if (fallbackCopyText(text)) done();
+  });
+});
 document.getElementById("buyCap").onclick = () => {
   const n = Number(document.getElementById("capAmt").value);
   const msg = document.getElementById("capMsg");

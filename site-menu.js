@@ -114,6 +114,9 @@
     try {
       history.replaceState(null, "", "#" + name);
     } catch (e) {}
+    if (global.NexxDashboardWidgets && global.NexxDashboardWidgets.onPage) {
+      global.NexxDashboardWidgets.onPage(name);
+    }
   }
 
   function navigate(page) {
